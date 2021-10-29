@@ -1,7 +1,7 @@
 const express = require('express');
 const theRoutes = require('./backend/index.js')
 const app = express();
-const PORT = 3000; // this is to be changed to dynamically work with the heroko port 
+const PORT = process.env.PORT || 3000; // this is to be changed to dynamically work with the heroko port 
 
 app.use(express.json());
 app.use(theRoutes);
