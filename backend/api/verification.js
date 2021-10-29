@@ -2,6 +2,7 @@ const router = require('express').Router()
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const {v4:uuidv4} = require("uuid");
+const pool = require("../../utilities/sqlConnection");
 
 //Post request that sends the email
 /*
@@ -24,7 +25,7 @@ router.post("/", (req, res) => {
         res.json({message:"internal server error"});
     }
 
-    const emailBody =`Hi! \n Please verify your account by clicking the link below: \n http://localhost:3000/api/verification/${uniqueCode}`;
+    const emailBody =`Hi! \n Please verify your account by clicking the link below: \n http://localhost:5000/api/verification/${uniqueCode}`;
     //options for who we are sending it to
     // console.log(process.env.VERIFICATION_EMAIL,process.env.VERIFICATION_PASSWORD);
     const options = {
@@ -40,10 +41,21 @@ router.post("/", (req, res) => {
             return;
         }
         console.log("Sent:" + res.response);
-        res.status(200).json({"data": res.response})
 
     })
-    res.status(200).json({"message":`Verification email sent to ${req.body.userEmail}`});
+
+    //add the verification token to the database
+    const query = "UPDATE members SET verificationtoken = $1 WHERE lower(email) = lower($2)";
+    const values = [uniqueCode, req.body.userEmail];
+    pool.query(query, values)
+    .then(result => {
+        //just send back a 200 code
+        console.log("i think it worked?");
+        res.status(200).json(result)
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    })
 })
 
 //this endpoint is used for the verification link
@@ -52,6 +64,14 @@ router.get("/:code", (req, res) => {
     //here we need to check if the db contains that code
     //and activate the account
     //for that we need to det up the account
-    res.status(200).send("Your account has been activated!");
+    const query = "UPDATE members SET verification = 1 where verificationtoken = $1";
+    const values = [req.params.code];
+    pool.query(query, values)
+    .then(response => {
+        res.status(200).send("Account verified successfully!");
+    })
+    .catch(err => {
+        res.status(500).json(err);
+    })
 })
 module.exports = router

@@ -1,5 +1,7 @@
 const router = require("express").Router();
  const pool = require("../../utilities/sqlConnection");
+//idk how this works either
+ const fetch = require("node-fetch");
 /**
  * this will handle the register routes
  */
@@ -21,11 +23,27 @@ router.post("/", (req, res) => {
     //make sql query to register
     const query = "INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Password, Salt,Verification) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING Email";
     const values = [firstName, lastName, username, email, password, salt, verification];
-
     //send the sql to the db"
     pool.query(query, values)
     .then(result => {
-        //the user was added successfully
+        // the user was added successfully
+        // when we successfully made the request we need to make the call to the endpoint that will 
+        // send the verification email
+        fetch("http://localhost:5000/api/verification/", 
+        {
+            method:'post',
+            body:JSON.stringify({
+                userEmail: email
+            }),
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(result => {
+            console.log("request sent");
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        //return the result to the user
         res.status(200).send({
             success:true,
             email:result.rows[0].email
@@ -47,6 +65,7 @@ router.post("/", (req, res) => {
             })
         }
     })
+    //uncomment above
     // res.status(200).send("Post request sent to register endpoint");
 })
 
