@@ -72,15 +72,15 @@ router.post("/", (req, res) => {
                 // Other error, like SQL insertion method not inserting properly
                 res.status(400).send({ 
                     // TODO: duplicate "message" is for testing
-                     message: "FirstName: " + firstName 
+                    /*message: "FirstName: " + firstName 
                     + " LastName: " + lastName 
                     + " UserName: " + username 
                     + " Email: " + email 
                     + " Password: " + password 
                     + " Salt: " + salt 
                     + " SaltHashPassword: " + salted_hash_password 
-                    + " Verification: " + verification,
-                    //message: "other error, see detail",
+                    + " Verification: " + verification,*/
+                    message: "other error, see detail",
                     detail: error.detail
                 })
             }
