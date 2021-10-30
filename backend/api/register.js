@@ -29,11 +29,13 @@ router.post("/", (req, res) => {
         // the user was added successfully
         // when we successfully made the request we need to make the call to the endpoint that will 
         // send the verification email
+        // no need to verify that we were given an email because it was verified in the step above
         fetch("http://localhost:5000/api/verification/", 
         {
             method:'post',
             body:JSON.stringify({
-                userEmail: email
+                userEmail: email,
+                name:firstName,
             }),
             headers: {'Content-Type': 'application/json'}
         })
@@ -65,8 +67,6 @@ router.post("/", (req, res) => {
             })
         }
     })
-    //uncomment above
-    // res.status(200).send("Post request sent to register endpoint");
 })
 
 router.put("/:id", (req, res) => {

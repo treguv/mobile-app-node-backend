@@ -3,6 +3,8 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const {v4:uuidv4} = require("uuid");
 const pool = require("../../utilities/sqlConnection");
+// const verificationPage = require("../../pages/verification/index.html");
+const path = require('path');
 
 //Post request that sends the email
 /*
@@ -14,6 +16,7 @@ const pool = require("../../utilities/sqlConnection");
 router.post("/", (req, res) => {
     //make transporter ( sender)
     const uniqueCode = uuidv4();
+    console.log("sending email to" + req.body.userEmail);
     const transporter = nodemailer.createTransport({
         service:"Gmail",
         auth: {
@@ -22,10 +25,10 @@ router.post("/", (req, res) => {
         }
     })
     if(!transporter){
-        res.json({message:"internal server error"});
+        res.status(500).json({message:"Internal server error"});
     }
 
-    const emailBody =`Hi! \n Please verify your account by clicking the link below: \n http://localhost:5000/api/verification/${uniqueCode}`;
+    const emailBody =`Hi ${req.body.name}!\nPlease verify your account by clicking the link below: \nhttp://localhost:5000/api/verification/${uniqueCode}\n\nThank you.`;
     //options for who we are sending it to
     // console.log(process.env.VERIFICATION_EMAIL,process.env.VERIFICATION_PASSWORD);
     const options = {
@@ -68,7 +71,8 @@ router.get("/:code", (req, res) => {
     const values = [req.params.code];
     pool.query(query, values)
     .then(response => {
-        res.status(200).send("Account verified successfully!");
+        //make a simple html page to send back here 
+        res.status(200).sendFile(path.join(__dirname,"../../pages/verification/index.html"));
     })
     .catch(err => {
         res.status(500).json(err);
