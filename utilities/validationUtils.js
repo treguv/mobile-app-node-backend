@@ -1,8 +1,9 @@
 const MAX_INPUT_LENGTH = 255
+const MIN_NAME_LENGTH = 2
 const MIN_USERNAME_LENGTH = 2
 const MAX_USERNAME_LENGTH = 30
 const MIN_EMAIL_LENGTH = 3
-const MIN_PASSWORD_LENGTH = 8
+const MIN_PASSWORD_LENGTH = 7
 
 /**
  * Checks the parameter to see if it is a a String with a length greater than 0.
@@ -14,13 +15,14 @@ let isStringProvided = (param) =>
     param !== undefined && param.length > 0
 
 // TODO: Fix documentation
-// Names only allow for capital letters, lowercase letters, and hyphens.
-// Names can be from 1-255 chars long.
+// Names only allow for capital letters, lowercase letters, hyphens, and spaces.
+// Names can be from 2-255 chars long.
 let isValidName = (name) => {
     let isValid = false;
-    let charRestriction = /^[A-Za-z-]+$/;
+    let charRestriction = /^[A-Za-z- ]+$/;
     if(isStringProvided(name) 
         && name.match(charRestriction)
+        && name.length >= MIN_NAME_LENGTH
         && name.length <= MAX_INPUT_LENGTH) {
         isValid = true;
     }
@@ -59,11 +61,11 @@ let isValidEmail = (email) => {
 }
 
 // Passwords must have a capital letter, a lowercase letter, a number, and at least one of the
-// special characters !@#$%^&*()_+-=
-// A password can be from 8-255 chars long.
+// special characters @#$%&*!?
+// A password can be from 7-255 chars long.
 let isValidPassword = (password) => {
     let isValid = false;
-    let charRestriction = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+-=])[A-Za-z0-9!@#$%^&*()_+-=]+$/;
+    let charRestriction = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%&*!?])[A-Za-z0-9@#$%&*!?]+$/;
     if(isStringProvided(password) 
             && password.match(charRestriction) 
             && password.length >= MIN_PASSWORD_LENGTH 
