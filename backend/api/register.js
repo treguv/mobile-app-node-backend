@@ -3,6 +3,10 @@ const pool = require("../../utilities/sqlConnection");
 
 const isStringProvided = require('../../utilities/validationUtils').isStringProvided
 const isValidName = require('../../utilities/validationUtils').isValidName
+const isValidUsername = require('../../utilities/validationUtils').isValidUsername
+const isValidEmail= require('../../utilities/validationUtils').isValidEmail
+const isValidPassword= require('../../utilities/validationUtils').isValidPassword
+
 const generateHash = require('../../utilities/credentialingUtils').generateHash
 const generateSalt = require('../../utilities/credentialingUtils').generateSalt
 
@@ -27,13 +31,13 @@ router.post("/", (req, res) => {
     //TODO: Make sure:
         // First and Last name are letters and hyphens only
         // Username is only letters, hypens, and underscores only
-        // Email must have an @ and a period after the @
+        // Email must have an @
         // Password must have a capital letter, a lowercase letter, a number, a special symbol, and is 7 or more characters long.
-    if(isStringProvided(firstName) 
-        && isStringProvided(lastName) 
-        && isStringProvided(username) 
-        && isStringProvided(email) 
-        && isStringProvided(password)) {
+    if(isValidName(firstName) 
+        && isValidName(lastName) 
+        && isValidUsername(username) 
+        && isValidEmail(email) 
+        && isValidPassword(password)) {
         // If the fields of registration are properly formatted
 
         // Generate salt then hash the password with the salt before storing in the database
@@ -68,15 +72,15 @@ router.post("/", (req, res) => {
                 // Other error, like SQL insertion method not inserting properly
                 res.status(400).send({ 
                     // TODO: duplicate "message" is for testing
-                    /* message: "FirstName: " + firstName 
+                     message: "FirstName: " + firstName 
                     + " LastName: " + lastName 
                     + " UserName: " + username 
                     + " Email: " + email 
                     + " Password: " + password 
                     + " Salt: " + salt 
                     + " SaltHashPassword: " + salted_hash_password 
-                    + " Verification: " + verification,*/
-                    message: "other error, see detail",
+                    + " Verification: " + verification,
+                    //message: "other error, see detail",
                     detail: error.detail
                 })
             }
