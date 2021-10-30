@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
 
+//account cred validation
 const isStringProvided = require('../../utilities/validationUtils').isStringProvided
 const isValidName = require('../../utilities/validationUtils').isValidName
 const isValidUsername = require('../../utilities/validationUtils').isValidUsername
@@ -10,6 +11,8 @@ const isValidPassword= require('../../utilities/validationUtils').isValidPasswor
 const generateHash = require('../../utilities/credentialingUtils').generateHash
 const generateSalt = require('../../utilities/credentialingUtils').generateSalt
 
+//fetch requests
+ const fetch = require("node-fetch");
 /**
  * this will handle the register routes
  */
@@ -51,7 +54,26 @@ router.post("/", (req, res) => {
         //send the sql to the db"
         pool.query(query, values)
         .then(result => {
-            //the user was added successfully
+            //send verification
+            // when we successfully made the request we need to make the call to the endpoint that will 
+        // send the verification email
+        // no need to verify that we were given an email because it was verified in the step above
+        fetch("http://localhost:5000/api/verification/", 
+        {
+            method:'post',
+            body:JSON.stringify({
+                userEmail: email,
+                name:firstName,
+            }),
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(result => {
+            console.log("request sent");
+        })
+        .catch(err => {
+            console.log(err);
+        })
+            //Send the response back to the user
             res.status(200).send({
                 success:true,
                 email:result.rows[0].email
