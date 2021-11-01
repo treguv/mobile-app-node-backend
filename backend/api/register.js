@@ -1,9 +1,7 @@
 const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
 
-const isStringProvided = require('../../utilities/validationUtils').isStringProvided
 const isValidName = require('../../utilities/validationUtils').isValidName
-const isValidUsername = require('../../utilities/validationUtils').isValidUsername
 const isValidEmail= require('../../utilities/validationUtils').isValidEmail
 const isValidPassword= require('../../utilities/validationUtils').isValidPassword
 
@@ -14,94 +12,117 @@ const generateSalt = require('../../utilities/credentialingUtils').generateSalt
  * this will handle the register routes
  */
 
+/* 
 router.get("/", (req, res) => {
     res.status(200).send("Get request sent to register endpoint");
-})
+}) 
+*/
 
-//this endpoint will register the user
+/**
+ * @api {post} /register Register a new account for the user.
+ * @apiName PostRegister
+ * @apiGroup Register
+ * 
+ * @apiParam {String} firstName User's first name
+ * @apiParam {String} lastName User's last name
+ * @apiParam {String} email User's email for the new account
+ * @apiParam {String} password User's password for the new account
+ * 
+ * @apiSuccess {Boolean} success True if the user's registration information was 
+ *  successfully inserted into the database.
+ * @apiSuccess {Object} email The email address of the user.
+ * 
+ * @apiError (400: Email Exists in DB) {String} message "Email exists"
+ * @apiError (400: Input Valid but Failed DB Insert) {String} message "Input valid, but 
+ *  failed to insert into database"
+ * @apiError (400: Invalid Input) {String} message "Fields empty or improperly formatted"
+ * @apiError (400: Invalid Input) {String} message "First and last names must be 2-255 
+ *  characters long and only contain letters, spaces, or hyphens"
+ * @apiError (400: Invalid Input) {String} message "Emails must be 3-255 characters long,
+ *  must contain an "@" sign, and only contain letters, numbers, hyphens, underscores, or
+ *  periods"
+ * @apiError (400: Invalid Input) {String} message "Passwords must be 7-255 characters 
+ *  long and contain at least one capital letter, one lowercase letter, one number, and 
+ *  one of the special characters @#$%&*!?"
+ */ 
 router.post("/", (req, res) => {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
-    const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
-    const verification = 0; // this will be updated in the actual verification part of it later
+    const verification = 0; // 0 = unverified, 1 = verified
 
-
-    //TODO: Make sure:
-        // First and Last name are letters and hyphens only
-        // Username is only letters, hypens, and underscores only
-        // Email must have an @
-        // Password must have a capital letter, a lowercase letter, a number, a special symbol, and is 7 or more characters long.
+    // If the fields of registration are properly formatted
     if(isValidName(firstName) 
-        && isValidName(lastName) 
-        && isValidUsername(username) 
+        && isValidName(lastName)
         && isValidEmail(email) 
         && isValidPassword(password)) {
-        // If the fields of registration are properly formatted
 
-        // Generate salt then hash the password with the salt before storing in the database
+        // Generate salt, then hash the password with the salt before storing in the 
+        // database
         let salt = generateSalt(32)
         let salted_hash_password = generateHash(password, salt)
 
-        //make sql query to register
-        const query = "INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Password, Salt, Verification) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING Email";
-        const values = [firstName, lastName, username, email, salted_hash_password, salt, verification];
+        // Make sql query to register (username defaults to email)
+        const query = "INSERT INTO MEMBERS(FirstName, LastName, Username, Email, " 
+            + "Password, Salt, Verification) VALUES ($1, $2, $3, $4, $5, $6, $7) " 
+            + "RETURNING Email";
+        const values = [firstName, lastName, email, email, salted_hash_password, salt, 
+            verification];
 
-        //send the sql to the db"
+        // Send the sql to the database
         pool.query(query, values)
-        .then(result => {
-            //the user was added successfully
+        .then(result => {  // the user was added successfully
             res.status(200).send({
                 success:true,
                 email:result.rows[0].email
             })
-        }).catch((error) => {
+        }).catch((error) => { 
             console.log(error)
-            if (error.constraint == "members_username_key") {
-                // If username already exists on another account in DB
-                res.status(400).send({
-                    message: "Username exists"
-                })
-            } else if (error.constraint == "members_email_key") {
-                // If email already exists on another account in DB
+            // If email already exists on another account in the database
+            if (error.constraint == "members_username_key"
+                    || error.constraint == "members_email_key") {
                 res.status(400).send({
                     message: "Email exists"
                 })
-            } else { 
-                // Other error, like SQL insertion method not inserting properly
+            } else {    // Other error, like SQL insertion method not inserting properly 
+                        // into database
                 res.status(400).send({ 
-                    // TODO: duplicate "message" is for testing
-                    /*message: "FirstName: " + firstName 
-                    + " LastName: " + lastName 
-                    + " UserName: " + username 
-                    + " Email: " + email 
-                    + " Password: " + password 
-                    + " Salt: " + salt 
-                    + " SaltHashPassword: " + salted_hash_password 
-                    + " Verification: " + verification,*/
-                    message: "other error, see detail",
+                    message: "Input valid, but failed to insert into database",
                     detail: error.detail
                 })
             }
         })
     } else {
-        // If fields are improperly formatted for registration from the start.
+        // If fields of registration are improperly formatted
+        let errorMessage = "Fields empty or improperly formatted"
+        if (!isValidName(firstName) || !(isValidName(lastName))) {
+            errorMessage = "First and last names must be 2-255 characters long and only "
+            + "contain letters, spaces, or hyphens"
+        } else if (!isValidEmail(email)) {
+            errorMessage = "Emails must be 3-255 characters long, must contain an \"@\"" 
+            + "sign, and only contain letters, numbers, hyphens, underscores, or periods"
+        } else if (!isValidPassword(password)) {
+            errorMessage = "Passwords must be 7-255 characters long and contain at least " 
+            + "one capital letter, one lowercase letter, one number, and one of the " 
+            + "special characters @#$%&*!?"
+        }        
+        
         res.status(400).send({
-            message: "Missing required information"
+            message: errorMessage
         })
     }
-    // res.status(200).send("Post request sent to register endpoint");
 })
 
+/* 
 router.put("/:id", (req, res) => {
     res.status(200).send("Put request sent to register endpoint");
 })
 
 router.delete("/:id", (req, res) => {
     res.status(200).send("Delete request sent to register endpoint");
-})
-
+}) 
+*/
 
 module.exports = router;
 
