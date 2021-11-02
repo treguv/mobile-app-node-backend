@@ -9,14 +9,19 @@ const MIN_PASSWORD_LENGTH = 7
  * Checks the parameter to see if it is a a String with a length greater than 0.
  * 
  * @param {string} param the value to check
- * @returns true if the parameter is a String with a length greater than 0, false otherwise
+ * @returns true if the parameter is a String with a length greater than 0, 
+ *  false otherwise
  */
 let isStringProvided = (param) => 
     param !== undefined && param.length > 0
 
-// TODO: Fix documentation
-// Names only allow for capital letters, lowercase letters, hyphens, and spaces.
-// Names can be from 2-255 chars long.
+/**
+ * Checks the parameter to see if it is a valid name.
+ * 
+ * @param {string} name the name to check
+ * @returns true if the name is 2-255 characters long and only contains letters, spaces,
+ *  or hyphens. False otherwise.
+ */
 let isValidName = (name) => {
     let isValid = false;
     let charRestriction = /^[A-Za-z- ]+$/;
@@ -29,8 +34,13 @@ let isValidName = (name) => {
     return isValid
 }
 
-// Usernames only allow for capital letters, lowercase letters, numbers, hyphens, and underscores.
-// Usernames can be from 2-30 chars long.
+/**
+ * Checks the parameter to see if it is a valid username.
+ * 
+ * @param {string} username the username to check
+ * @returns true if the username is 2-30 characters long and only contain letters, 
+ * numbers, hyphens, or underscores. False otherwise.
+ */
 let isValidUsername = (username) => {
     let isValid = false;
     let charRestriction = /^[A-Za-z0-9-_]+$/;
@@ -43,10 +53,13 @@ let isValidUsername = (username) => {
     return isValid;
 }
 
-// Emails only allow for capital letters, lowercase letters, numbers, hyphens, underscores, 
-// periods, and an @ sign.
-// Emails require an "@" symbol somewhere in the address.
-// Emails can be from 3-255 chars long.
+/**
+ * Checks the parameter to see if it is a valid email.
+ * 
+ * @param {string} email the email to check
+ * @returns true if the email is 3-255 characters long, must contain an "@" sign, and 
+ *  only contain letters, numbers, hyphens, underscores, or periods. False otherwise.
+ */
 let isValidEmail = (email) => {
     let isValid = false;
     let charRestriction = /^[A-Za-z0-9-_.@]+$/;
@@ -60,9 +73,14 @@ let isValidEmail = (email) => {
     return isValid;
 }
 
-// Passwords must have a capital letter, a lowercase letter, a number, and at least one of the
-// special characters @#$%&*!?
-// A password can be from 7-255 chars long.
+/**
+ * Checks the parameter to see if it is a valid password.
+ * 
+ * @param {string} password the password to check
+ * @returns true if the password is 7-255 characters long and contain at least one 
+ *  capital letter, one lowercase letter, one number, and one of the special characters 
+ *  @#$%&*!? False otherwise.
+ */
 let isValidPassword = (password) => {
     let isValid = false;
     let charRestriction = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%&*!?])[A-Za-z0-9@#$%&*!?]+$/;
