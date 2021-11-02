@@ -71,7 +71,7 @@ router.get("/:code", (req, res) => {
     pool.query(query, values)
     .then(response => {
         //make a simple html page to send back here 
-        res.status(200).sendFile(path.join(__dirname,"../../pages/verification/index.html"));
+        res.status(200).redirect("../../verification.html")
     })
     .catch(err => {
         res.status(500).json(err);

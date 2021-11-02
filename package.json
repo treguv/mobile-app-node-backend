@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ScubbyCrub/TCSS450-Group6-Lab1Practice#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "dotenv": "^10.0.0",
     "express.js": "^1.0.0",
     "node-fetch": "^2.0.0",

@@ -47,7 +47,7 @@ router.post("/", (req, res) => {
         const options = {
             from: process.env.VERIFICATION_EMAIL,
             to: userEmail,
-            subject: "ResetPassword",
+            subject: "Reset Password",
             text:`${emailBody}`
     }
         //if query successful send email
@@ -74,7 +74,16 @@ router.post("/", (req, res) => {
  * 
  *This endpoint will open the webpage and somehow pass the unique id code into the website
  */
-router.get(":/id", (req, res) => {
-    
+router.get("/:id", (req, res) => {
+   //open the html page
+   console.log("req recieved");
+   res.status(200).redirect(`../../passwordReset.html?id=${req.params.id}`); 
+})
+
+router.post("/reset/:id", (req, res) => {
+    console.log("Got it !");
+    console.log(req.body);
+     console.log(req.params.id);
+    res.status(200).json({"success": "true"})
 })
 module.exports = router;
