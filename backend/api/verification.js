@@ -4,7 +4,6 @@ const nodemailer = require('nodemailer');
 const {v4:uuidv4} = require("uuid");
 const pool = require("../../utilities/sqlConnection");
 // const verificationPage = require("../../pages/verification/index.html");
-const path = require('path');
 
 //Post request that sends the email
 /*
