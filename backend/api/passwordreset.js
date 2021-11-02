@@ -2,6 +2,12 @@ const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
 const path = require('path');
 const nodemailer = require('nodemailer');
+
+//password validation
+const isValidPassword= require('../../utilities/validationUtils').isValidPassword
+
+const generateHash = require('../../utilities/credentialingUtils').generateHash
+const generateSalt = require('../../utilities/credentialingUtils').generateSalt
 /**
  * hit this endpoint with a post request
  * that request contains an email address addrerss
@@ -83,7 +89,26 @@ router.get("/:id", (req, res) => {
 router.post("/reset/:id", (req, res) => {
     console.log("Got it !");
     console.log(req.body);
-     console.log(req.params.id);
-    res.status(200).json({"success": "true"})
+    console.log(req.params.id);
+    const password = req.body.newPassword;
+     if(isValidPassword(password)) {
+         //update to update the salt val in db
+          // Generate salt then hash the password with the salt before storing in the database
+        let salt = generateSalt(32)
+        let saltedHashPassword = generateHash(password, salt);
+
+        const query = "UPDATE members SET password = $1, salt =$2 WHERE verificationtoken = $3";
+        const values = [saltedHashPassword,salt, req.params.id];
+
+        //make query
+        pool.query(query, values)
+        .then(result => {
+            console.log(result);
+            res.status(200).json({"message":"Password updated successfully"})
+        })
+     }else {
+         res.status(400).json({"message": "Invalid Password"})
+     }
+    
 })
 module.exports = router;
