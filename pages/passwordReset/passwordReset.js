@@ -8,6 +8,10 @@ let specialChar = document.getElementById('specialChar');
 let length = document.getElementById("length");
 let matching = document.getElementById("matching");
 
+let submit = document.getElementById('submit');
+
+//in case they have previous passowrd autofill
+updateValidation();
 //add and remove the validation box
 // passwordField.onfocus = () =>{
 //     document.getElementById("passwordValidationForm").style.display = "block";
@@ -25,7 +29,7 @@ let matching = document.getElementById("matching");
 // }
 
 //live validations
-passwordField.onkeyup = function() {
+function updateValidation() {
   // Validate lowercase letters
   let lowerCaseLetters = /[a-z]/g
   if(passwordField.value.match(lowerCaseLetters)) {
@@ -73,7 +77,7 @@ passwordField.onkeyup = function() {
     specialChar.classList.remove("valid");
     specialChar.classList.add("invalid");
   }
-  if(passwordField.value == confirmPassword.value){
+  if(passwordField.value.length > 0 && passwordField.value == confirmPassword.value){
     matching.classList.remove("invalid");
     matching.classList.add("valid");
   } else {
@@ -81,3 +85,33 @@ passwordField.onkeyup = function() {
     matching.classList.add("invalid");
   }
 }
+
+
+
+passwordField.onkeyup = () => {updateValidation();}
+confirmPassword.onkeyup = () => {updateValidation();}
+//check if the current password setup is valid
+//this  ensures that no invalid passwords are sent back to the
+function checkPassword() {
+    let numbers = /[0-9]/g;
+    let lowerCaseLetters = /[a-z]/g
+    let upperCaseLetters = /[A-Z]/g;
+    let special = /[!@#$%^&*(),.?":{}|<>]/g;
+    let minLen = 7;
+
+    return (passwordField.value.match(numbers) && 
+        passwordField.value.match(lowerCaseLetters) && 
+        passwordField.value.match(upperCaseLetters) && 
+        passwordField.value.match(special) && 
+        passwordField.value.length >= minLen &&
+        passwordField.value == confirmPassword.value)
+}
+
+submit.addEventListener("click", function(e){
+    e.preventDefault();
+    if(checkPassword()){
+        console.log("Valid password!");
+        //send request to the back end now finally
+        
+    }
+})
