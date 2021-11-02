@@ -31,23 +31,27 @@ router.post("/", (req, res) => {
         res.status(500).json({message:"Internal server error"});
     }
 
-    const emailBody =`Hi ${req.body.name}!\n Please click the link below to reset your password:\n\n\n If you did not request to reset your password please reset your password as someone may be trying to access your account`;
-
-    //options for who we are sending it to
-    const options = {
-        from: process.env.VERIFICATION_EMAIL,
-        to: userEmail,
-        subject: "ResetPassword",
-        text:`${emailBody}`
-    }
+ 
     //
-    const query = "SELECT FROM members  WHERE email = $1";
+    const query = "SELECT verificationtoken FROM members  WHERE email = $1";
     const values = [userEmail];
     //make query
     pool.query(query, values)
     .then(result => {
+        console.log(result.fields[0].value);
+        console.log(result.rows[0].verificationtoken);
+        const link = `http://localhost:5000/api/passwordreset/${result.rows[0].verificationtoken}`
+        const emailBody =`Hi ${req.body.name}!\n Please click the link below to reset your password:\n${link}\n\nIf you did not request to reset your password please reset your password as someone may be trying to access your account`;
+      
+        //options for who we are sending it to
+        const options = {
+            from: process.env.VERIFICATION_EMAIL,
+            to: userEmail,
+            subject: "ResetPassword",
+            text:`${emailBody}`
+    }
         //if query successful send email
-        console.log(result);
+        console.log(result.rows);
         transporter.sendMail(options, (err, response) => {
         if(err){
             console.log(err);
@@ -66,4 +70,11 @@ router.post("/", (req, res) => {
    
 });
 
+/**
+ * 
+ *This endpoint will open the webpage and somehow pass the unique id code into the website
+ */
+router.get(":/id", (req, res) => {
+    
+})
 module.exports = router;
