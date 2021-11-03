@@ -41,7 +41,7 @@ router.get("/", (req, res,next) => {
         })
     }
 }, (req, res) => {
-    const theQuery = "SELECT Password, Salt, MemberId FROM Members WHERE Email=$1"
+    const theQuery = "SELECT Password, Salt, MemberId, Verification FROM Members WHERE Email=$1"
     const values = [req.signin.email]
     const uniqueCode = uuidv4();
     pool.query(theQuery, values)
@@ -64,8 +64,7 @@ router.get("/", (req, res,next) => {
             let providedSaltedHash = generateHash(req.signin.password, salt)
 
             //Retrieve the verification from the DB
-            let verification = result.rows[0].verification
-
+            let verification = result.rows[0].verification;
             //Checking if the user already verificated their account 
             if(verification == 1){
                 //Did our salted hash match their salted hash?
