@@ -90,7 +90,7 @@ router.get("/", (req, res,next) => {
                 } else {
                     //credentials dod not match
                     res.status(400).send({
-                        message: 'Wrong Email or Password11!' 
+                        message: 'Wrong Email or Password!' 
                     })
                 }
             } else {
