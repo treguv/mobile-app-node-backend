@@ -27,7 +27,7 @@ router.post("/", (req, res) => {
         res.status(500).json({message:"Internal server error"});
     }
 
-    const emailBody =`Hi ${req.body.name}!\nPlease verify your account by clicking the link below: \nhttp://localhost:5000/api/verification/${uniqueCode}\n\nThank you.`;
+    const emailBody =`Hi ${req.body.name}!\nPlease verify your account by clicking the link below: \nhttps://cleverchat.herokuapp.com/api/verification/${uniqueCode}\n\nThank you.`;
     //options for who we are sending it to
     // console.log(process.env.VERIFICATION_EMAIL,process.env.VERIFICATION_PASSWORD);
     const options = {
