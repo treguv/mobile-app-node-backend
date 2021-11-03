@@ -53,7 +53,7 @@ router.get("/", (req, res,next) => {
                 return
             }
             //Setup Url here 
-            const emailBody =`Hi ${req.body.name}!\nPlease verify your account by clicking the link below: \nhttp://localhost:5000/api/verification/${uniqueCode}\n\nThank you.`;
+            const emailBody =`Hi ${req.body.name}!\nPlease verify your account by clicking the link below: \nhttps://cleverchat.herokuapp.com//api/verification/${uniqueCode}\n\nThank you.`;
             //Retrieve the salt used to create the salted-hash provided from the DB
             let salt = result.rows[0].salt
             

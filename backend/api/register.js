@@ -81,7 +81,7 @@ router.post("/", (req, res) => {
             // when we successfully made the request we need to make the call to the endpoint that will 
         // send the verification email
         // no need to verify that we were given an email because it was verified in the step above
-        fetch("http://localhost:5000/api/verification/", 
+        fetch("https://cleverchat.herokuapp.com/api/verification/", 
         {
             method:'post',
             body:JSON.stringify({
