@@ -98,8 +98,8 @@ router.get("/", (req, res,next) => {
                 let transport_email = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
-                        user: process.env.EMAIL,
-                        pass: process.env.PASSWORD
+                        user: process.env.VERIFICATION_EMAIL,
+                        pass: process.env.VERIFICATION_PASSWORD
                     }
                 });
 
