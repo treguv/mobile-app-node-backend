@@ -5,6 +5,8 @@ const isValidPassword= require('../../utilities/validationUtils').isValidPasswor
 const isStringProvided= require('../../utilities/validationUtils').isStringProvided
 const generateHash = require('../../utilities/credentialingUtils').generateHash
 const jwt = require('jsonwebtoken')
+const {v4:uuidv4} = require("uuid");
+const nodemailer = require('nodemailer')
 const config = {
     secret: process.env.JSON_WEB_TOKEN
 }
@@ -41,6 +43,7 @@ router.get("/", (req, res,next) => {
 }, (req, res) => {
     const theQuery = "SELECT Password, Salt, MemberId FROM Members WHERE Email=$1"
     const values = [req.signin.email]
+    const uniqueCode = uuidv4();
     pool.query(theQuery, values)
         .then(result => { 
             if (result.rowCount == 0) {
@@ -49,7 +52,8 @@ router.get("/", (req, res,next) => {
                 })
                 return
             }
-
+            //Setup Url here 
+            const emailBody =`Hi ${req.body.name}!\nPlease verify your account by clicking the link below: \nhttps://cleverchat.herokuapp.com//api/verification/${uniqueCode}\n\nThank you.`;
             //Retrieve the salt used to create the salted-hash provided from the DB
             let salt = result.rows[0].salt
             
@@ -59,30 +63,62 @@ router.get("/", (req, res,next) => {
             //Generate a hash based on the stored salt and the provided password
             let providedSaltedHash = generateHash(req.signin.password, salt)
 
-            //Did our salted hash match their salted hash?
-            if (storedSaltedHash === providedSaltedHash ) {
-                //credentials match. get a new JWT
-                let token = jwt.sign(
-                    {
-                        "email": req.signin.email,
-                        "memberid": result.rows[0].memberid
-                    },
-                    config.secret,
-                    { 
-                        expiresIn: '100 days' // expires in 14 days
-                    }
-                )
-                //package and send the results
-                res.json({
-                    success: true,
-                    message: 'Login successful!',
-                    token: token
-                })
+            //Retrieve the verification from the DB
+            let verification = result.rows[0].verification
+
+            //Checking if the user already verificated their account 
+            if(verification == 1){
+                //Did our salted hash match their salted hash?
+                if (storedSaltedHash === providedSaltedHash ) {
+                    //credentials match. get a new JWT
+                    let token = jwt.sign(
+                        {
+                            "email": req.signin.email,
+                            "memberid": result.rows[0].memberid
+                        },
+                        config.secret,
+                        { 
+                            expiresIn: '100 days' // expires in 14 days
+                        }
+                    )
+                    //package and send the results
+                    res.json({
+                        success: true,
+                        message: 'Login successful!',
+                        token: token
+                    })
+                } else {
+                    //credentials dod not match
+                    res.status(400).send({
+                        message: 'Wrong Email or Password11!' 
+                    })
+                }
             } else {
-                //credentials dod not match
-                res.status(400).send({
-                    message: 'Wrong Email or Password11!' 
+                //Created auth mail
+                let transport_email = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: process.env.EMAIL,
+                        pass: process.env.PASSWORD
+                    }
+                });
+
+                //Created mail option
+                let mail_options = {
+                    from: process.env.VERIFICATION_EMAIL,
+                    to: req.body.userEmail,
+                    subject: 'Verify your email',
+                    text: `${emailBody}`
+                };
+                transport_email.sendMail(mail_options, (err, res) => {
+                    if(err){
+                        console.log(err);
+                        res.status(500).json(err);
+                        return;
+                    }
+                    console.log("Sent:" + res.response);
                 })
+                
             }
         })
         .catch((err) => {
