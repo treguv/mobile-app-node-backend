@@ -106,7 +106,7 @@ router.get("/", (req, res,next) => {
                 //Created mail option
                 let mail_options = {
                     from: process.env.VERIFICATION_EMAIL,
-                    to: req.body.userEmail,
+                    to: req.signin.email,
                     subject: 'Verify your email',
                     text: `${emailBody}`
                 };
