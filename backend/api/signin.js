@@ -35,7 +35,7 @@ router.get("/", (req, res,next) => {
         next()
     } else {
         res.status(400).send({
-            message: "Email or Password invalid1"
+            message: "Email or Password invalid!"
         })
     }
 }, (req, res) => {
