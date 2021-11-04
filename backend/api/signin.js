@@ -16,7 +16,7 @@ const config = {
  */
 
 /**
- * @api {get} /signin Request to sign a user in the system
+ * @api {get} api/signin Request to sign a user in the system
  * @apiName GetSignIn
  * @apiGroup SignIn
  * 

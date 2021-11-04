@@ -23,7 +23,7 @@ router.get("/", (req, res) => {
 */
 
 /**
- * @api {post} /register Register a new account for the user.
+ * @api {post} api/register Register a new account for the user.
  * @apiName PostRegister
  * @apiGroup Register
  * 

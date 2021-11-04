@@ -6,7 +6,7 @@ const pool = require("../../utilities/sqlConnection");
 // const verificationPage = require("../../pages/verification/index.html");
 
 /**
- * @api {post} /verification Post request that sends the verification email
+ * @api {post} api/verification Post request that sends the verification email
  * @apiName PostVerification
  * @apiGroup Verification
  * 
@@ -67,7 +67,7 @@ router.post("/", (req, res) => {
 })
 
 /**
- * @api {get} /verification/:code This endpoint is used for the verification link
+ * @api {get} api/verification/:code This endpoint is used for the verification link
  * @apiName GetVerification
  * @apiGroup Verification
  * 

@@ -24,7 +24,7 @@ const generateSalt = require('../../utilities/credentialingUtils').generateSalt
  * also get name for email
  */
 /**
- * @api {post} /passwordreset Sends an email that will let the user change their password.
+ * @api {post} api/passwordreset Sends an email that lets users change their password.
  * @apiName PostPasswordResetSendEmail
  * @apiGroup PasswordReset
  * 
@@ -89,8 +89,7 @@ router.post("/", (req, res) => {
 });
 
 /**
- * @api {get} /passwordreset/:id This endpoint will open the webpage and somehow pass 
- * the unique id code into the website.
+ * @api {get} api/passwordreset/:id Opens webpage and passes unique id code into it.
  * @apiName GetPasswordReset
  * @apiGroup PasswordReset
  * 
@@ -103,8 +102,7 @@ router.get("/:id", (req, res) => {
 })
 
 /**
- * @api {post} /passwordreset/reset/:id Allows a current user to change their password 
- * in the database.
+ * @api {post} api/passwordreset/reset/:id Changes user password in database.
  * @apiName PostPasswordResetChangeDatabase
  * @apiGroup PasswordReset
  * 
