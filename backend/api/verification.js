@@ -5,13 +5,19 @@ const {v4:uuidv4} = require("uuid");
 const pool = require("../../utilities/sqlConnection");
 // const verificationPage = require("../../pages/verification/index.html");
 
-//Post request that sends the email
-/*
-    expects
-    { 
-        userEmail: email
-    }
-*/
+/**
+ * @api {post} /verification Post request that sends the verification email
+ * @apiName PostVerification
+ * @apiGroup Verification
+ * 
+ * @apiParam {String} name User's first name
+ * @apiParam {String} userEmail User's email
+ * 
+ * @apiSuccess {String} sent "Sent:" + res.response
+ * 
+ * @apiError (500: Internal Server Error) {String} message "Internal Server Error"
+ * @apiError (500: Internal Server Error) {Object} err Error detail
+ */ 
 router.post("/", (req, res) => {
     //make transporter ( sender)
     const uniqueCode = uuidv4();
@@ -60,7 +66,18 @@ router.post("/", (req, res) => {
     })
 })
 
-//this endpoint is used for the verification link
+/**
+ * @api {get} /verification/:code This endpoint is used for the verification link
+ * @apiName GetVerification
+ * @apiGroup Verification
+ * 
+ * @apiParam {String} code Special code that, if matched with the DB code, allows the 
+ *  user to be verified.
+ * 
+ * @apiSuccess (Success 200 Redirected) redirectedUrlString
+ * 
+ * @apiError (500: Internal Server Error) {Object} err Error detail
+ */ 
 router.get("/:code", (req, res) => {
     console.log(req.params.code);
     //here we need to check if the db contains that code

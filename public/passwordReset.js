@@ -28,7 +28,9 @@ updateValidation();
 //     document.getElementById("passwordValidationForm").style.display = "none";
 // }
 
-//live validations
+/**
+ * Live validation checker for the user inputting a new password
+ */
 function updateValidation() {
   // Validate lowercase letters
   let lowerCaseLetters = /[a-z]/g
@@ -90,8 +92,13 @@ function updateValidation() {
 
 passwordField.onkeyup = () => {updateValidation();}
 confirmPassword.onkeyup = () => {updateValidation();}
-//check if the current password setup is valid
-//this  ensures that no invalid passwords are sent back to the
+
+/**
+ * Checks if the current password setup is valid.
+ * This ensures that no invalid passwords are sent back to the database.
+ * 
+ * @returns true If the current password being passsed is valid, false otherwise.
+ */
 function checkPassword() {
     let numbers = /[0-9]/g;
     let lowerCaseLetters = /[a-z]/g
@@ -107,6 +114,10 @@ function checkPassword() {
         passwordField.value == confirmPassword.value)
 }
 
+/**
+ * Resets the old password in the database to the new, valid password and redirects the 
+ * user to a page afterward.
+ */
 submit.addEventListener("click", function(e){
     e.preventDefault();
     const urlSearchParams = new URLSearchParams(window.location.search);

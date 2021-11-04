@@ -12,7 +12,7 @@ const generateSalt = require('../../utilities/credentialingUtils').generateSalt
 
 //fetch requests
  const fetch = require("node-fetch");
-/**
+/*
  * this will handle the register routes
  */
 
@@ -78,9 +78,10 @@ router.post("/", (req, res) => {
         pool.query(query, values)
         .then(result => {
             //send verification
-            // when we successfully made the request we need to make the call to the endpoint that will 
-        // send the verification email
-        // no need to verify that we were given an email because it was verified in the step above
+            // when we successfully made the request we need to make the call to the 
+        // endpoint that will send the verification email
+        // no need to verify that we were given an email because it was verified 
+        // in the step above
         fetch("https://cleverchat.herokuapp.com/api/verification/", 
         {
             method:'post',
