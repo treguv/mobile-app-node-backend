@@ -39,7 +39,7 @@ router.post("/", (req, res) => {
 
  
     //
-    const query = "SELECT verificationtoken FROM members  WHERE email = $1";
+    const query = "SELECT verificationtoken,firstname FROM members  WHERE email = $1";
     const values = [userEmail];
     //make query
     pool.query(query, values)
@@ -47,7 +47,7 @@ router.post("/", (req, res) => {
         console.log(result.fields[0].value);
         console.log(result.rows[0].verificationtoken);
         const link = `https://cleverchat.herokuapp.com/api/passwordreset/${result.rows[0].verificationtoken}`
-        const emailBody =`Hi ${req.body.name}!\n Please click the link below to reset your password:\n${link}\n\nIf you did not request to reset your password please reset your password as someone may be trying to access your account`;
+        const emailBody =`Hi ${result.rows[0].firstname}!\n Please click the link below to reset your password:\n${link}\n\nIf you did not request to reset your password please reset your password as someone may be trying to access your account`;
       
         //options for who we are sending it to
         const options = {

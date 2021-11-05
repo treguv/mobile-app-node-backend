@@ -127,7 +127,8 @@ submit.addEventListener("click", function(e){
        }).then(response =>{
          if(response.status == 200){
            //TODO: Change this to a success re
-           window.location.replace("https://www.youtube.com/watch?v=xvFZjo5PgG0");
+          //  window.location.replace("https://www.youtube.com/watch?vi=xvFZjo5PgG0");
+          alert("Password Reset!");
          }
        }).catch(error =>{
          console.log(error);
