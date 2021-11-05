@@ -11,10 +11,36 @@ const config = {
     secret: process.env.JSON_WEB_TOKEN
 }
 
-/**
+/*
  * this will handle the signin routes
  */
 
+/**
+ * @api {get} api/signin Request to sign a user in the system
+ * @apiName GetSignIn
+ * @apiGroup SignIn
+ * 
+ * @apiHeader {String} authorization "username:password" uses Basic Auth
+ * 
+ * @apiSuccess {boolean} success true when the name is found and password matches
+ * @apiSuccess {String} message "Authentication successful!""
+ * @apiSuccess {String} token JSON Web Token
+ * 
+ *  * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "success": true,
+ *       "message": "Authentication successful!",
+ *       "token": "eyJhbGciO...abc123"
+ *     }
+ * 
+ * @apiError (400: Missing Authorization Header) {String} message "Missing Authorization Header"
+ * @apiError (400: Email or Password Invalid) {String} message "Email or Password Invalid!"
+ * @apiError (404: User Not Found) {String} message "User not found"
+ * @apiError (400: Wrong Email or Password) {String} message "Wrong Email or Password!"
+ * @apiError (500: Internal Server Error) {Object} err Error detail
+ * @apiError (400: General Error) {Object} err Error detail
+ */
 router.get("/", (req, res,next) => {
     if (isStringProvided(req.headers.authorization) && req.headers.authorization.startsWith('Basic ')) {
         next()
@@ -129,6 +155,7 @@ router.get("/", (req, res,next) => {
         })
     })
 
+/*
 router.post("/", (req, res) => {
     res.status(200).send("Post req sent to sign in  endpoint");
 })
@@ -140,7 +167,7 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
     res.status(200).send("Delete req sent to sign in endpoint");
 })
-
+*/
 
 module.exports = router;
 

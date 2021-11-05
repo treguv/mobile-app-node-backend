@@ -8,7 +8,8 @@ const isValidPassword= require('../../utilities/validationUtils').isValidPasswor
 
 const generateHash = require('../../utilities/credentialingUtils').generateHash
 const generateSalt = require('../../utilities/credentialingUtils').generateSalt
-/**
+
+/*
  * hit this endpoint with a post request
  * that request contains an email address addrerss
  * look up that email in the db and grab the emails verification code
@@ -16,11 +17,22 @@ const generateSalt = require('../../utilities/credentialingUtils').generateSalt
  * that page will then send a fetch request that tries to update the password
  * if successful then we say so
  * 
- * or we can send a code to the user, when the enter that code then we take them to the reset page
+ * or we can send a code to the user, when the enter that code then we take them to the 
+ * reset page
+ * 
+ * This will send an email to the user with the password reset link 
+ * also get name for email
  */
-
-//This will send an email to the user with the password reset link 
-//also get name for email
+/**
+ * @api {post} api/passwordreset Sends an email that lets users change their password.
+ * @apiName PostPasswordResetSendEmail
+ * @apiGroup PasswordReset
+ * 
+ * @apiSuccess (Success 200) {String} message "email sent"
+ * 
+ * @apiError (500: Internal Server Error) {String} message "Internal server error"
+ * @apiError (500: Internal Server Error) {Object} err Error description
+ */
 router.post("/", (req, res) => {
     //get the users email which we will use to generate the link for reseting
     const userEmail = req.body.userEmail;
@@ -77,8 +89,11 @@ router.post("/", (req, res) => {
 });
 
 /**
+ * @api {get} api/passwordreset/:id Opens webpage and passes unique id code into it.
+ * @apiName GetPasswordReset
+ * @apiGroup PasswordReset
  * 
- *This endpoint will open the webpage and somehow pass the unique id code into the website
+ * @apiSuccess (Success 200 Redirected) redirectedUrlString
  */
 router.get("/:id", (req, res) => {
    //open the html page
@@ -86,6 +101,18 @@ router.get("/:id", (req, res) => {
    res.status(200).redirect(`../../passwordReset.html?id=${req.params.id}`); 
 })
 
+/**
+ * @api {post} api/passwordreset/reset/:id Changes user password in database.
+ * @apiName PostPasswordResetChangeDatabase
+ * @apiGroup PasswordReset
+ * 
+ * @apiParam {String} newPassword The user's new password they want to use
+ * @apiParam {Number} id The memberID of the specific user
+ * 
+ * @apiSuccess (Success 200) {String} message "Pasword updated successfully"
+ * 
+ * @apiError (400: Invalid Password) {String} message "Invalid Password"
+ */
 router.post("/reset/:id", (req, res) => {
     console.log("Got it !");
     console.log(req.body);
@@ -93,7 +120,8 @@ router.post("/reset/:id", (req, res) => {
     const password = req.body.newPassword;
      if(isValidPassword(password)) {
          //update to update the salt val in db
-          // Generate salt then hash the password with the salt before storing in the database
+          // Generate salt then hash the password with the salt before storing in the 
+          // database
         let salt = generateSalt(32)
         let saltedHashPassword = generateHash(password, salt);
 

@@ -1,0 +1,13 @@
+{
+    "name": "CleverChat Web Service",
+    "version": "0.1.0",
+    "description": "The CleverChat Web Service API Documentation",
+    "title": "CleverChat API Doc",
+    "url" : "https://cleverchat.herokuapp.com/",
+    "order": [
+      "SignIn",
+      "Register",
+      "Verification",
+      "PasswordReset"
+    ]
+  }
