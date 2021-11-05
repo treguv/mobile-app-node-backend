@@ -115,8 +115,8 @@ router.get("/:id", (req, res) => {
  */
 router.post("/reset/:id", (req, res) => {
     console.log("Got it !");
-    console.log(req.body);
-    console.log(req.params.id);
+    // console.log(req.body);
+    // console.log(req.params.id);
     const password = req.body.newPassword;
      if(isValidPassword(password)) {
          //update to update the salt val in db

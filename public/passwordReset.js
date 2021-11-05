@@ -12,7 +12,7 @@ let submit = document.getElementById('submit');
 
 //in case they have previous passowrd autofill
 updateValidation();
-//add and remove the validation box
+//add and remove the validation box, this is here in case we decide to use it later on.
 // passwordField.onfocus = () =>{
 //     document.getElementById("passwordValidationForm").style.display = "block";
 // }

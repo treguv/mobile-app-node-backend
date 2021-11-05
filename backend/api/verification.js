@@ -58,7 +58,7 @@ router.post("/", (req, res) => {
     pool.query(query, values)
     .then(result => {
         //just send back a 200 code
-        console.log("i think it worked?");
+        // console.log("i think it worked?");
         res.status(200).json(result)
     })
     .catch(err => {
