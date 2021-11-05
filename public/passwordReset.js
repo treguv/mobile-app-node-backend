@@ -125,7 +125,7 @@ submit.addEventListener("click", function(e){
     const data = {"newPassword": passwordField.value};
     console.log(params);
     if(checkPassword()){
-      const url = `http://localhost:5000/api/passwordreset/reset/${params.id}`;
+      const url = `https://cleverchat.herokuapp.com/api/passwordreset/reset/${params.id}`;
         console.log("Valid password!");
         //send request to the back end now finally
        fetch(url, {
