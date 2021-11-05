@@ -4,7 +4,11 @@ const app = express();
 const PORT = process.env.PORT || 3000; // this is to be changed to dynamically work with the heroko port 
 const path = require('path');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
+app.use(cors({
+    origin: '*'
+}))
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
