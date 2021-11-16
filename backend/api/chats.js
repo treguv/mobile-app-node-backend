@@ -1,5 +1,49 @@
 const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
+const fetch = require("node-fetch");
+
+// returns a list of all the chats in the databaseUrl
+router.get("/", (req, res, next) => {
+    console.log("Get Request recieved!");
+    /**
+     * This will have passed a jwt check 
+     */
+    //need to get all chats in the db that our user is a part of 
+    //query all the chat id chatid numbs we are a member of 
+    const query = `select chatid from ChatMembers where memberid = $1`;
+    const values = [req.decoded.memberid];
+    pool.query(query, values)
+    .then(result => {
+        console.log(result);
+        res.locals.rows = result.rows;
+        next();
+        // res.status(200).send({message: "ok"});
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(400).send({"error": err});
+    })
+}, (req, res, next) => {
+    let ids = [];
+    for(let i = 0; i < res.locals.rows.length; i++){
+        ids.push(res.locals.rows[i].chatid);
+    }
+    console.log(ids);
+    //here we have access to all the chat id that our user is a part of
+    const query = "select * from chats where chatid = ANY($1::int[])";
+    const values = [ids];
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows);
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json({chats:result.rows});
+    })
+    .catch(err  => {
+        console.log(err);
+        res.status(500).send({"Message": err})
+    })
+
+})
 
 
 //post route that will create the chat
@@ -12,7 +56,7 @@ router.post("/", (req, res, next) => {
     } else {
         next();
     }
-},(req, res) => {
+},(req, res, next) => {
     //sent it into the db to add it 
     const query = `INSERT INTO Chats(Name)
     VALUES ($1)
@@ -23,10 +67,15 @@ router.post("/", (req, res, next) => {
     pool.query(query, values)
         .then(result =>{
             //cannot send number in res.send
-            res.send({
-                success: true,
-                chatid: result.rows[0].chatid
-            });
+
+            //TODO: Update this query to take a list of user id to add 
+            //call the add user function for each user 
+            // res.send({
+            //     success: true,
+            //     chatid: result.rows[0].chatid
+            // });
+            res.locals.chatid = result.rows[0].chatid;
+            next();
         })
         .catch(err => {
             console.log(err);
@@ -35,10 +84,55 @@ router.post("/", (req, res, next) => {
                 error:err
             })
         })
+}, (req, res, next) => {
+    console.log(req.body.members);
+    //note we also need to add ourselves to the chat, this id can be found inside the jwt
+    const data = {
+        "chatid": res.locals.chatid, 
+        "memberid": req.decoded.memberid
+    };
+    // console.log(req.headers.authorization);
+    console.log(data.chatid + " is my id");
+    //how we do things here will rely entierly on the Contacts */
+    //TODO: Figure out why this is not working
+    fetch(`http://localhost:5000/api/chat/${res.locals.chatid}`, {
+        method : "PUT",
+        body: JSON.stringify(data),
+        headers: {'Content-Type': 'application/json',
+                "Authorization": req.headers.authorization
+            },
+        credentials: "same-origin"
+    })
+    .then(result => {
+        console.log("result: " + result);
+        //all good here
+        console.log("Added self to chat!");
+        next(); // this is to add all the rest of the members
+    })
+    .catch(err =>{
+        console.log(err);
+        console.log("could not add self to chat!");
+        res.status(500).send({message: err});
+    })
+    /**
+     * we need the users user id to pass to the next method
+     * this should be being given to us from the front end i hope 
+     * 
+     */
+ ;
+}, (req, res) => {
+    //TODO add contact members
+    res.send({
+        success: true,
+        chatid: res.locals.chatid
+    })
 });
 
+
 router.put("/:chatid", (req,res,next) => {
+    console.log("GOT THE PUT REQUESRT!");
     //check if the chatid is provided 
+    //TODO add a fail response for missing jwt token
     if(!req.params.chatid){
         res.status(400).send({
             message: "Missing chatid"
@@ -48,6 +142,7 @@ router.put("/:chatid", (req,res,next) => {
             message:"Malformed Parameter, chatid must be a number"
         })
     }else {
+        console.log("Made it to stage 1");
         next()
     }
 }, (req, res, next) =>  {
@@ -74,9 +169,19 @@ router.put("/:chatid", (req,res,next) => {
 }, (req,res, next) => {
     //validate that the email exists in the db
      let query = 'SELECT * FROM Members WHERE MemberId=$1'
-    let values = [req.decoded.memberid]
+    //TODO: Updatae this to ues the req param if no jwt present
+      let id = req.decoded.memberid;
+      if(req == undefined) {
+          //in the case that this is passed internallty
+          //TODO this MIGHT be a terrible security flaw
+          //however to get to either one of the two endpoints they need a valid jwt token
+          //sp maybe not ?
+          id = req.body.memberid;
+      }
+    let values = [id];
+   
 
-    console.log(req.decoded)
+    console.log("This is the user we are adding: " + id);
 
     pool.query(query, values)
         .then(result => {
@@ -99,7 +204,12 @@ router.put("/:chatid", (req,res,next) => {
 }, (req,res, next) => {
     //make sure user has not already been added 
         let query = 'SELECT * FROM ChatMembers WHERE ChatId=$1 AND MemberId=$2'
-        let values = [req.params.chatid, req.decoded.memberid]
+        let id = req.decoded.memberid;
+      if(req == undefined) {
+          id = req.body.memberid;
+      }
+        let values = [req.params.chatid, id];
+        console.log("adding the user :"  + id);
     
         pool.query(query, values)
             .then(result => {
@@ -122,7 +232,11 @@ router.put("/:chatid", (req,res,next) => {
     let insert = `INSERT INTO ChatMembers(ChatId, MemberId)
     VALUES ($1, $2)
     RETURNING *`
-    let values = [req.params.chatid, req.decoded.memberid]
+    let id = req.decoded.memberid;
+      if(req == undefined) {
+          id = req.body.memberid;
+      }
+    let values = [req.params.chatid, id];
     console.log(values);
     pool.query(insert, values)
         .then(result => {
