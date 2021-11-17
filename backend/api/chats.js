@@ -122,14 +122,42 @@ router.post("/", (req, res, next) => {
  ;
 }, (req, res) => {
     //TODO add contact members
-    res.send({
-        success: true,
-        chatid: res.locals.chatid
+
+    
+    for(let i = 0; i < req.body.members.length; i++){
+        const data = {
+            "chatid": res.locals.chatid, 
+            "memberid": req.body.members[i]
+        };
+        fetch(`http://localhost:5000/api/chat/${res.locals.chatid}`, {
+        method : "PUT",
+        body: JSON.stringify(data),
+        headers: {'Content-Type': 'application/json',
+                "Authorization": req.headers.authorization
+            },
+        credentials: "same-origin"
     })
+    .then(result => {
+        console.log("result: " + result);
+        //all good here
+        console.log("Added self to chat!");
+        // next(); // this is to add all the rest of the members
+    })
+    .catch(err =>{
+        console.log(err);
+        console.log("could not add self to chat!");
+        res.status(500).send({message: err});
+    })
+    }
+    // res.send({
+    //     success: true,
+    //     chatid: res.locals.chatid
+    // })
 });
 
 
 router.put("/:chatid", (req,res,next) => {
+    //TODO section this off into its own method that does all this
     console.log("GOT THE PUT REQUESRT!");
     //check if the chatid is provided 
     //TODO add a fail response for missing jwt token
@@ -169,15 +197,7 @@ router.put("/:chatid", (req,res,next) => {
 }, (req,res, next) => {
     //validate that the email exists in the db
      let query = 'SELECT * FROM Members WHERE MemberId=$1'
-    //TODO: Updatae this to ues the req param if no jwt present
-      let id = req.decoded.memberid;
-      if(req == undefined) {
-          //in the case that this is passed internallty
-          //TODO this MIGHT be a terrible security flaw
-          //however to get to either one of the two endpoints they need a valid jwt token
-          //sp maybe not ?
-          id = req.body.memberid;
-      }
+      let id = req.body.memberid;
     let values = [id];
    
 
@@ -204,10 +224,7 @@ router.put("/:chatid", (req,res,next) => {
 }, (req,res, next) => {
     //make sure user has not already been added 
         let query = 'SELECT * FROM ChatMembers WHERE ChatId=$1 AND MemberId=$2'
-        let id = req.decoded.memberid;
-      if(req == undefined) {
-          id = req.body.memberid;
-      }
+        let id = req.body.memberid;
         let values = [req.params.chatid, id];
         console.log("adding the user :"  + id);
     
@@ -232,10 +249,7 @@ router.put("/:chatid", (req,res,next) => {
     let insert = `INSERT INTO ChatMembers(ChatId, MemberId)
     VALUES ($1, $2)
     RETURNING *`
-    let id = req.decoded.memberid;
-      if(req == undefined) {
-          id = req.body.memberid;
-      }
+    let id = req.body.memberid;
     let values = [req.params.chatid, id];
     console.log(values);
     pool.query(insert, values)
@@ -247,6 +261,51 @@ router.put("/:chatid", (req,res,next) => {
             message: "SQL Error",
             error: err
         })
+    })
+})
+
+router.delete("/:id", (req, res, next) => {
+    //check to see if the chat Exists
+    const query = " select * from chats where chatid = $1";
+    const values = [req.params.id];
+    pool.query(query, values)
+    .then(result => {
+        if(result.rowCount > 0){
+            //a chat with this id exists already
+            next();
+        } else {
+            res.status(404).send({ message: "Chat does not exist"});
+        }
+    }) 
+    .catch(err =>{
+        console.log("281: " + err);
+        res.status(500).json(err);
+    })
+}, (req, res, next) => {
+    //clean up all the chat member stuff from the chat 
+    const query = "delete from chatmembers where chatid = $1";
+    const values = [req.params.id];
+    pool.query(query, values)
+    .then(result => {
+        //removed all the chat members
+        next();
+    })
+    .catch(err => {
+        console.log("296: " + err);
+        res.status(500).json(err);
+    })
+}, (req, res) => {
+    //remove the actual chat    
+    //TODO: add deletion of messages from the chat when the chat is deleted aswell
+    const query = "delete from chats where chatid = $1";
+    const values = [req.params.id];
+    pool.query(query, values)
+    .then(result => {
+        res.status(200).send({ message:"Chat deleted successfully"});
+    })
+    .catch(err => {
+        console.log("307: " + err);
+        res.status(500).json(err);
     })
 })
 module.exports = router;
