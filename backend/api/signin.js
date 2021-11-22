@@ -42,6 +42,7 @@ const config = {
  * @apiError (400: General Error) {Object} err Error detail
  */
 router.get("/", (req, res,next) => {
+    console.log("Hit local signin");
     if (isStringProvided(req.headers.authorization) && req.headers.authorization.startsWith('Basic ')) {
         next()
     } else {
@@ -119,30 +120,32 @@ router.get("/", (req, res,next) => {
                     })
                 }
             } else {
+                console.log("Attemted sign in with unverified user");
+                res.status(400).send({message: "User not verified"});
                 //Created auth mail
-                let transport_email = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: process.env.VERIFICATION_EMAIL,
-                        pass: process.env.VERIFICATION_PASSWORD
-                    }
-                });
+                // let transport_email = nodemailer.createTransport({
+                //     service: 'gmail',
+                //     auth: {
+                //         user: process.env.VERIFICATION_EMAIL,
+                //         pass: process.env.VERIFICATION_PASSWORD
+                //     }
+                // });
 
-                //Created mail option
-                let mail_options = {
-                    from: process.env.VERIFICATION_EMAIL,
-                    to: req.signin.email,
-                    subject: 'Verify your email',
-                    text: `${emailBody}`
-                };
-                transport_email.sendMail(mail_options, (err, res) => {
-                    if(err){
-                        console.log(err);
-                        res.status(500).json(err);
-                        return;
-                    }
-                    console.log("Sent:" + res.response);
-                })
+                // //Created mail option
+                // let mail_options = {
+                //     from: process.env.VERIFICATION_EMAIL,
+                //     to: req.signin.email,
+                //     subject: 'Verify your email',
+                //     text: `${emailBody}`
+                // };
+                // transport_email.sendMail(mail_options, (err, res) => {
+                //     if(err){
+                //         console.log(err);
+                //         res.status(500).json(err);
+                //         return;
+                //     }
+                //     console.log("Sent:" + res.response);
+                // })
                 
             }
         })

@@ -60,7 +60,7 @@ router.post("/list", (request, response, next) => {
     })
 }, (request, response) => {
     let value = [response.locals.userMemberID.memberid]
-    let query = "SELECT Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE MemberID IN (SELECT MemberID_B FROM Contacts WHERE MemberID_A=$1)";
+    let query = "SELECT MemberID,Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE MemberID IN (SELECT MemberID_B FROM Contacts WHERE MemberID_A=$1)";
     pool.query(query, value).then(result => {
         if(result.rowCount > 0) {
             response.send({
