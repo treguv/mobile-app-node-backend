@@ -141,6 +141,7 @@ router.post("/", (req, res, next) => {
         console.log("result: " + result);
         //all good here
         console.log("Added self to chat!");
+        res.status(200).send({message:"Chat made successfully"});
         // next(); // this is to add all the rest of the members
     })
     .catch(err =>{
@@ -210,7 +211,7 @@ router.put("/:chatid", (req,res,next) => {
                     message: "Email not found"
                 })
             } else {
-                //user found
+                //user found    
                 next()
             }
         }).catch(error => {
