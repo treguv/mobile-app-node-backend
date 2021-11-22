@@ -12,6 +12,8 @@ const chatRoutes = require('./chats');
 const searchRoutes = require('./search');
 const contactRoutes = require('./contact');
 const weatherRoutes = require('./weather')
+const messagesRoutes = require('./messages');
+const pushyRegisterRoutes = require('./pushyregister');
 
 router.use("/chat",checkToken, chatRoutes);
 router.use("/passwordreset",passwordResetRoutes);
@@ -21,6 +23,8 @@ router.use("/verification", verificationRoutes);
 router.use("/search", searchRoutes);
 router.use("/contact", contactRoutes);
 router.use("/weather",weatherRoutes);
+router.use("/messages", middleware.checkToken, messagesRoutes);
+router.use("/pushyAuth", middleware.checkToken, pushyRegisterRoutes);
 
 module.exports = router;
 
