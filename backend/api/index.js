@@ -23,8 +23,8 @@ router.use("/verification", verificationRoutes);
 router.use("/search", searchRoutes);
 router.use("/contact", contactRoutes);
 router.use("/weather",weatherRoutes);
-router.use("/messages", middleware.checkToken, messagesRoutes);
-router.use("/pushyAuth", middleware.checkToken, pushyRegisterRoutes);
+router.use("/messages", checkToken, messagesRoutes);
+router.use("/pushyAuth", checkToken, pushyRegisterRoutes);
 
 module.exports = router;
 
