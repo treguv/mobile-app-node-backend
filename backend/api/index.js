@@ -18,7 +18,7 @@ router.use("/signin", signInRoutes);
 router.use("/verification", verificationRoutes);
 router.use("/messages", middleware.checkToken, messagesRoutes);
 router.use("/chats", middleware.checkToken, chatsRoutes);
-router.use("/pushyregister", middleware.checkToken, pushyRegisterRoutes);
+router.use("/pushyAuth", middleware.checkToken, pushyRegisterRoutes);
 
 module.exports = router;
 
