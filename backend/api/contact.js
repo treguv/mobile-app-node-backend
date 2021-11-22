@@ -27,15 +27,45 @@ const { isStringProvided, isValidEmail } = require("../../utilities/validationUt
  * @apiUse JSONError
  */ 
 
-// Get the user contact list 
-router.post("/list", (request, response) => {
-    let value = [request.body.id]
-    let query = "SELECT * FROM Contacts WHERE MemberID_A=$1";
+// Get the user contact list by email
+router.post("/list", (request, response, next) => {
+    //Validate on empty parameters
+    if(!isStringProvided(request.body.email)) {
+        response.status(400).send({
+            message: "Missing required information"
+        })
+    }
+    else {
+        next()
+    }
+}, (request, response, next) => {
+    //Validate email and get memberID from this email
+    let value = [request.body.email]
+    let query = "SELECT MemberID FROM Members WHERE Email LIKE '%"+value+"%'"
+    
+    pool.query(query).then(result => {
+        if (result.rowCount == 0) {
+            response.status(404).send({
+                message: "Email not found"
+            })
+        } else {
+            response.locals.userMemberID = result.rows[0]
+            next()
+        }
+    }).catch(error => {
+        response.status(400).send({
+            message: "SQL Error 82",
+            error: error
+        })
+    })
+}, (request, response) => {
+    let value = [response.locals.userMemberID.memberid]
+    let query = "SELECT Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE MemberID IN (SELECT MemberID_B FROM Contacts WHERE MemberID_A=$1)";
     pool.query(query, value).then(result => {
         if(result.rowCount > 0) {
             response.send({
-                success: true,
-                users: result.rows
+                email: request.body.email,
+                rows: result.rows
             })
         }
         else {
@@ -64,7 +94,7 @@ router.post("/add", (request, response, next) => {
         next()
     }
 }, (request, response, next) => {
-    //Validate email 
+    //Validate email and get memberID from this email
     let value = [request.body.email]
     let query = "SELECT MemberID FROM Members WHERE Email LIKE '%"+value+"%'"
     
@@ -130,7 +160,8 @@ router.post("/add", (request, response, next) => {
     pool.query(insert, values)
         .then(result => {
             response.send({
-                success: true
+                success: true,
+                message: "successfully added this contact"
             })
         }).catch(err => {
             response.status(400).send({

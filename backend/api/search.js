@@ -20,7 +20,7 @@ router.get("/people", (request, response) => {
         if(result.rowCount > 0) {
             response.send({
                 success: true,
-                users: result.rows
+                rows: result.rows
             })
         }
         else {
