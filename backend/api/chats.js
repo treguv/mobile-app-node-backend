@@ -124,7 +124,7 @@ router.post("/", (req, res, next) => {
     //TODO add contact members
 
     
-    for(let i = 0; i < req.body.members.length; i++){
+    for(let i = 0; i < req.body.members.length; i++){   
         const data = {
             "chatid": res.locals.chatid, 
             "memberid": req.body.members[i]
@@ -136,24 +136,26 @@ router.post("/", (req, res, next) => {
                 "Authorization": req.headers.authorization
             },
         credentials: "same-origin"
-    })
-    .then(result => {
-        console.log("result: " + result);
-        //all good here
-        console.log("Added self to chat!");
-        res.status(200).send({message:"Chat made successfully"});
-        // next(); // this is to add all the rest of the members
-    })
-    .catch(err =>{
-        console.log(err);
-        console.log("could not add self to chat!");
-        res.status(500).send({message: err});
-    })
+        })
+        .then(result => {
+            console.log("result: " + result);
+            //all good here
+            console.log("Added self to chat!");
+            // res.status(200).send({message:"Chat made successfully"});
+            // next(); // this is to add all the rest of the members
+        })
+        .catch(err =>{
+            console.log(err);
+            console.log("could not add self to chat!");
+            res.status(500).send({message: err});
+        })
     }
-    // res.send({
-    //     success: true,
-    //     chatid: res.locals.chatid
-    // })
+    //if we made it here then we successfully added all people to chat
+    res.status(200).send(
+        {message:"Chat made successfully",
+        chatid: res.locals.chatid}
+        );
+
 });
 
 

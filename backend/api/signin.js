@@ -54,12 +54,15 @@ router.get("/", (req, res,next) => {
         
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii')
 
-    const [email, password] = credentials.split(':')
-
+    let [email, password] = credentials.split(':')
+    //Trim extra space
+    email = email.trim();
+    password = password.trim();
+    console.log(email, password);
     if (isValidEmail(email) && isValidPassword(password)) {
         req.signin = { 
-            "email" : email,
-            "password" : password
+            "email" : email.trim(),
+            "password" : password.trim()
         }
         next()
     } else {
@@ -73,6 +76,7 @@ router.get("/", (req, res,next) => {
     const uniqueCode = uuidv4();
     pool.query(theQuery, values)
         .then(result => { 
+                console.log(result.rows[0]);
             if (result.rowCount == 0) {
                 res.status(404).send({
                     message: 'User not found' 
@@ -88,10 +92,12 @@ router.get("/", (req, res,next) => {
             let storedSaltedHash = result.rows[0].password 
 
             //Generate a hash based on the stored salt and the provided password
-            let providedSaltedHash = generateHash(req.signin.password, salt)
-
+            let providedSaltedHash = generateHash(req.signin.password.trim(), salt)
+            console.log("stored: " + storedSaltedHash);
+            console.log("provid: " + providedSaltedHash);
             //Retrieve the verification from the DB
             let verification = result.rows[0].verification;
+            console.log(verification);
             //Checking if the user already verificated their account 
             if(verification == 1){
                 //Did our salted hash match their salted hash?
@@ -115,7 +121,8 @@ router.get("/", (req, res,next) => {
                     })
                 } else {
                     //credentials dod not match
-                    res.status(400).send({
+                    console.log("Credentials do not match!");
+                    res.status(401).send({
                         message: 'Wrong Email or Password!' 
                     })
                 }
