@@ -7,7 +7,7 @@ router.get("/", (req, res, next) => {
     console.log("Get Request recieved!");
     /**
      * This will have passed a jwt check 
-     */
+     */     
     //need to get all chats in the db that our user is a part of 
     //query all the chat id chatid numbs we are a member of 
     const query = `select chatid from ChatMembers where memberid = $1`;
@@ -123,8 +123,7 @@ router.post("/", (req, res, next) => {
 }, (req, res) => {
     //TODO add contact members
 
-    
-    for(let i = 0; i < req.body.members.length; i++){   
+    for(let i = 0; i < req.body.members.length; i++){
         const data = {
             "chatid": res.locals.chatid, 
             "memberid": req.body.members[i]
@@ -153,7 +152,7 @@ router.post("/", (req, res, next) => {
     //if we made it here then we successfully added all people to chat
     res.status(200).send(
         {message:"Chat made successfully",
-        chatid: res.locals.chatid}
+        chatid:res.locals.chatid}
         );
 
 });
