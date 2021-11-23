@@ -21,7 +21,7 @@ router.use("/register", registerRoutes);
 router.use("/signin", signInRoutes);
 router.use("/verification", verificationRoutes);
 router.use("/search", searchRoutes);
-router.use("/contact", contactRoutes);
+router.use("/contact", checkToken, contactRoutes);
 router.use("/weather",weatherRoutes);
 router.use("/messages", checkToken, messagesRoutes);
 router.use("/pushyAuth", checkToken, pushyRegisterRoutes);
