@@ -20,6 +20,7 @@ const { isStringProvided, isValidEmail } = require("../../utilities/validationUt
  * @apiError (400: Missing Parameters) {String} message "Missing required information"
  * @apiError (400: Missing Parameters) {String} message "This user already joined contact list"
  * @apiError (400: Missing Parameters) {String} message "This user don't have any contact"
+ * @apiError (400: Missing Parameters) {String} message "You can not add yourself :)"
  * @apiError (404: Email Not Found) {String} message "Email not found"
  * @apiError (404: Username Not Found) {String} message "Username not found"
  * @apiError (400: SQL Error) {String} message "SQL error"
@@ -81,6 +82,7 @@ router.post("/list", (request, response, next) => {
     })
 })
 
+//Add another user to contact list
 router.post("/add", (request, response, next) => {
     //email of user A and username of user B
     //Validate on empty parameters
@@ -93,6 +95,22 @@ router.post("/add", (request, response, next) => {
     else {
         next()
     }
+}, (request, response, next) => {
+    //email and username not from the same person
+    let value = [request.body.email, request.body.username]
+    let query = "SELECT * FROM Members WHERE Email = $1 AND Username = $2"
+
+    pool.query(query, value).then(result => {
+        if(result.rowCount == 0) {
+            next()
+        }
+        else {
+            response.status(400).send({
+                message: "You can not add yourself :)"
+            })
+        }
+    })
+
 }, (request, response, next) => {
     //Validate email and get memberID from this email
     let value = [request.body.email]
@@ -152,9 +170,23 @@ router.post("/add", (request, response, next) => {
             error: error
         })
     })
-}, (request, response) => {
-    //Insert user to contact list
+}, (request, response, next) => {
+    //add B to A's list
     let values = [response.locals.userAMemberID.memberid, response.locals.userBMemberID.memberid]
+    let insert = "INSERT INTO Contacts(MemberID_A, MemberID_B)"
+                + "VALUES ($1, $2) RETURNING *"
+    pool.query(insert, values)
+        .then(result => {
+            next()
+        }).catch(err => {
+            response.status(400).send({
+                message: "SQL Error",
+                error: err
+            })
+        })
+}, (request, response) => {
+    //add A to B's list 
+    let values = [response.locals.userBMemberID.memberid, response.locals.userAMemberID.memberid]
     let insert = "INSERT INTO Contacts(MemberID_A, MemberID_B)"
                 + "VALUES ($1, $2) RETURNING *"
     pool.query(insert, values)
@@ -168,8 +200,10 @@ router.post("/add", (request, response, next) => {
                 message: "SQL Error",
                 error: err
             })
-        })
+    })
 });
+
+
 
 /**
  * @apiDefine JSONError
@@ -184,6 +218,7 @@ router.post("/add", (request, response, next) => {
  * @apiUse JSONError
  */ 
 
+//Delete a user out of contact list
  router.post("/delete", (request, response, next) => {
     //email of user A and username of user B
     //Validate on empty parameters
@@ -262,7 +297,8 @@ router.post("/add", (request, response, next) => {
     pool.query(query, values)
         .then(result => {
             response.send({
-                success: true
+                success: true,
+                message: "Successfully deleted this contact."
             })
         }).catch(err => {
             response.status(400).send({
