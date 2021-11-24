@@ -11,24 +11,21 @@ const { isStringProvided, isValidEmail } = require("../../utilities/validationUt
  */ 
 
 /**
- * @api {post} /contact 
- * @apiName PostContact
+ * @api {post} api/contact/list Get user contact list by email
+ * @apiName PostListContact
  * @apiGroup Contact
  * 
- * @apiDescription Adds the message from the user associated with the required JWT. 
  * @apiHeader {String} authorization Valid JSON Web Token JWT
+ * 
+ * @apiSuccess (Success) {Object} json User's email and contact list
+ * 
  * @apiError (400: Missing Parameters) {String} message "Missing required information"
- * @apiError (400: Missing Parameters) {String} message "This user already joined contact list"
- * @apiError (400: Missing Parameters) {String} message "This user don't have any contact"
- * @apiError (400: Missing Parameters) {String} message "You can not add yourself :)"
  * @apiError (404: Email Not Found) {String} message "Email not found"
- * @apiError (404: Username Not Found) {String} message "Username not found"
  * @apiError (400: SQL Error) {String} message "SQL error"
+ * @apiError (400: Missing Parameters) {String} message "This user don't have any contact"
  * 
  * @apiUse JSONError
  */ 
-
-// Get the user contact list by email
 router.post("/list", (request, response, next) => {
     //Validate on empty parameters
     if(!isStringProvided(request.body.email)) {
@@ -82,7 +79,24 @@ router.post("/list", (request, response, next) => {
     })
 })
 
-//Add another user to contact list
+/**
+ * @api {post} api/contact/add Add another user to contact list
+ * @apiName PostAddContact
+ * @apiGroup Contact
+ * 
+ * @apiHeader {String} authorization Valid JSON Web Token JWT
+ * 
+ * @apiSuccess (Success) {Object} json "true" and "successfully added this contact"
+ * 
+ * @apiError (400: Missing Parameters) {String} message "Missing required information"
+ * @apiError (400: Cannot Add Yourself) {String} message "You can not add yourself :)"
+ * @apiError (404: Email Not Found) {String} message "Email not found"
+ * @apiError (400: SQL Error) {String} message "SQL error"
+ * @apiError (404: Username Not Found) {String} message "Username not found"
+ * @apiError (400: User Already Joined) {String} message "This user already joined contact list"
+ * 
+ * @apiUse JSONError
+ */ 
 router.post("/add", (request, response, next) => {
     //email of user A and username of user B
     //Validate on empty parameters
@@ -203,22 +217,23 @@ router.post("/add", (request, response, next) => {
     })
 });
 
-
-
 /**
- * @apiDefine JSONError
+ * @api {post} api/contact/delete Delete a user out of contact list
+ * @apiName PostDeleteContact
+ * @apiGroup Contact
+ * 
+ * @apiHeader (Success) {String} authorization Valid JSON Web Token JWT
+ * 
+ * @apiSuccess {Object} json "true" and "successfully deleted this contact"
  * 
  * @apiError (400: Missing Parameters) {String} message "Missing required information"
- * @apiError (400: Missing Parameters) {String} message "This user is not in the contact list"
- * @apiError (400: Missing Parameters) {String} message "This user don't have any contact"
  * @apiError (404: Email Not Found) {String} message "Email not found"
- * @apiError (404: Username Not Found) {String} message "Username not found"
  * @apiError (400: SQL Error) {String} message "SQL error"
+ * @apiError (404: Username Not Found) {String} message "Username not found"
+ * @apiError (400: User Not In Contact LIst) {String} message "This user is not in the contact list"
  * 
  * @apiUse JSONError
  */ 
-
-//Delete a user out of contact list
  router.post("/delete", (request, response, next) => {
     //email of user A and username of user B
     //Validate on empty parameters

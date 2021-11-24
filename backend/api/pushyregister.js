@@ -16,14 +16,10 @@ const middleware = require('../../middleware')
  * @apiHeader {String} authorization Valid JSON Web Token JWT
  * @apiParam {String} token the Pushy Token of the user identified in the JWT
  * 
- * @apiSuccess {boolean} success true when the pushy token is inserted
- * 
+ * @apiSuccess (Success) {boolean} success true when the pushy token is inserted
  * @apiError (400: Missing Parameters) {String} message "Missing required information"
- * 
  * @apiError (404: User Not Found) {String} message "user not found"
- * 
  * @apiError (400: JSON Error) {String} message "malformed JSON in parameters"
- * 
  * @apiError (400: SQL Error) {String} message the reported SQL error details
  */ 
 router.put('/', middleware.checkToken, (request, response, next) => {
@@ -94,14 +90,11 @@ router.put('/', middleware.checkToken, (request, response, next) => {
  * 
  * @apiHeader {String} authorization Valid JSON Web Token JWT
  * 
- * @apiSuccess {boolean} success true when the pushy token is deleted
+ * @apiSuccess (Success) {boolean} success true when the pushy token is deleted
  * 
  * @apiError (400: Missing Parameters) {String} message "Missing required information"
- * 
  * @apiError (404: User Not Found) {String} message "user not found"
- * 
  * @apiError (400: JSON Error) {String} message "malformed JSON in parameters"
- * 
  * @apiError (400: SQL Error) {String} message the reported SQL error details
  */ 
 router.delete('/', middleware.checkToken, (request, response, next) => {

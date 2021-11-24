@@ -3,7 +3,15 @@ const router = require("express").Router();
 const request = require('request');
 
 
+/**
+ * @api {get} api/weather Get weather data
+ * @apiName GetWeather
+ * @apiGroup Weather
 
+ * @apiSuccess (Success) {Object} json Weather data
+ * 
+ * @apiError (Error) {Object} error Description of error
+ */ 
  router.get("/", (req, res) => {
     let lat = 47.25
     let lon = 122.44

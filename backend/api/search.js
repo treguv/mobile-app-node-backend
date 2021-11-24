@@ -4,16 +4,16 @@ const { response } = require("express");
 const pool = require("../../utilities/sqlConnection");
 const { isStringProvided } = require("../../utilities/validationUtils");
 
- /* @apiError (400: No user exists) {String} message "No user here"
+ /**
+ * @api {get} api/search/people Get all users from database
+ * @apiName GetSearch
+ * @apiGroup Search
  * 
- * @apiError (400: Missing Parameters) {String} message "Missing required information"
+ * @apiSuccess (Success) {Object} json "true" with all resulting rows of users from database
  * 
- * @apiError (400: SQL Error) {String} SQL error
- * 
- * @apiError (400: No user found) {String} message "Can't find this user"
- */
-
-// Get all the users from database
+ * @apiError (400: No Users in Database) {String} message "No users here"
+ * @apiError (400: SQL Error) {Object} json "SQL error" plus error details
+ */ 
 router.get("/people", (request, response) => {
     let query = "SELECT * FROM Members";
     pool.query(query).then(result => {
@@ -36,7 +36,17 @@ router.get("/people", (request, response) => {
     })
 })
 
-// Search for user
+ /**
+ * @api {post} api/search Search for a specific user
+ * @apiName PostSearch
+ * @apiGroup Search
+ * 
+ * @apiSuccess (Success) {Object} json "true" with the specific user info
+ * 
+ * @apiError (400: Missing Information) {String} message "Missing information"
+ * @apiError (400: Can't Find User) {String} message "Can't find the user"
+ * @apiError (400: SQL Error) {Object} json "SQL error" plus error details
+ */ 
 router.post("/", (request, response, next) => {
     //validate on empty parameters
     if (request.body.search === undefined || !isStringProvided(request.body.search)) {

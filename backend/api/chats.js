@@ -6,9 +6,14 @@ const BASE_URL = "https://cleverchat.herokuapp.com/api/";
 // returns a list of all the chats in the databaseUrl
 
 /**
- * @api {get} api/chats Get all the chats the user is a part of 
+ * @api {get} api/chat Get all the chats the user is a part of 
  * @apiName GetChat
  * @apiGroup Chat
+ * 
+ * @apiSuccess (Success) {Object} json Rows of all chats the user is a part of
+ * 
+ * @apiError (400: General Error) {String} error Error description
+ * @apiError (500: General Website Error) {String} Message Error description
  */
 router.get("/", (req, res, next) => {
     console.log("Get Request recieved!");
@@ -53,7 +58,17 @@ router.get("/", (req, res, next) => {
 })
 
 
-//post route that will create the chat
+/**
+ * @api {post} api/chat Create a new chat 
+ * @apiName PostChat
+ * @apiGroup Chat
+ * 
+ * @apiSuccess (Success) {Object} json "Chat made successfully" with the new chatid number
+ * 
+ * @apiError (400: Missing Information) {String} mesage "Missing required informaiton"
+ * @apiError (400: SQL Error) {String} message "SQL Error"
+ * @apiError (500: General Website Error) {String} message Error description
+ */
 router.post("/", (req, res, next) => {
     //check if it has all the needed information
     if(req.body.name == undefined){
@@ -164,7 +179,20 @@ router.post("/", (req, res, next) => {
 
 });
 
-
+/**
+ * @api {put} api/chat/:chatid Add user to chat 
+ * @apiName PutChat
+ * @apiGroup Chat
+ * 
+ * @apiSuccess (Success) {Object} json "Chat made successfully" with the new chatid number
+ * 
+ * @apiError (400: Missing ID) {String} message "Missing chatid"
+ * @apiError (400: SQL Error) {String} message "Malformed Parameter, chatid must be a number"
+ * @apiError (400: Chat ID Not Found) {String} message "Chat ID not found"
+ * @apiError (400: SQL Error) {Object} json "SQL Error" plus the error
+ * @apiError (404: Email Not Found) {String} message "Email not found"
+ * @apiError (400: User Already Joined) {String} message "user already joined"
+ */
 router.put("/:chatid", (req,res,next) => {
     //TODO section this off into its own method that does all this
     console.log("GOT THE PUT REQUESRT!");
@@ -273,6 +301,16 @@ router.put("/:chatid", (req,res,next) => {
     })
 })
 
+/**
+ * @api {delete} api/chat/:id Delete a chat
+ * @apiName DeleteChat
+ * @apiGroup Chat
+ * 
+ * @apiSuccess (Success) {String} message "Chat deleted successfully" with the new chatid number
+ * 
+ * @apiError (404: Chat Does Not Exist) {String} message "Chat does not exist"
+ * @apiError (500: General Website Error) {Object} json Error
+ */
 router.delete("/:id", (req, res, next) => {
     //check to see if the chat Exists
     const query = " select * from chats where chatid = $1";
