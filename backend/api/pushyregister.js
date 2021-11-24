@@ -9,9 +9,9 @@ const router = express.Router()
 const middleware = require('../../middleware')
 
 /**
- * @api {put} /auth Request to insert a Pushy Token for the user
- * @apiName PutAuth
- * @apiGroup Auth
+ * @api {put} api/pushyauth Request to insert a Pushy Token for the user
+ * @apiName PutPushyAuth
+ * @apiGroup PushyAuth
  * 
  * @apiHeader {String} authorization Valid JSON Web Token JWT
  * @apiParam {String} token the Pushy Token of the user identified in the JWT
@@ -88,9 +88,9 @@ router.put('/', middleware.checkToken, (request, response, next) => {
 })
 
 /**
- * @api {delete} /auth Request to delete a Pushy Token for the user
- * @apiName DeleteAuth
- * @apiGroup Auth
+ * @api {delete} api/pushyauth Request to delete a Pushy Token for the user
+ * @apiName DeletePushyAuth
+ * @apiGroup PushyAuth
  * 
  * @apiHeader {String} authorization Valid JSON Web Token JWT
  * 
