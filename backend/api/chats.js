@@ -1,8 +1,15 @@
 const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
 const fetch = require("node-fetch");
-
+const BASE_URL = "http://localhost:5000/api/";
+// const BASE_URL = "https://cleverchat.herokuapp.com/api/";
 // returns a list of all the chats in the databaseUrl
+
+/**
+ * @api {get} api/chats Get all the chats the user is a part of 
+ * @apiName GetChat
+ * @apiGroup Chat
+ */
 router.get("/", (req, res, next) => {
     console.log("Get Request recieved!");
     /**
@@ -95,7 +102,7 @@ router.post("/", (req, res, next) => {
     console.log(data.chatid + " is my id");
     //how we do things here will rely entierly on the Contacts */
     //TODO: Figure out why this is not working
-    fetch(`http://localhost:5000/api/chat/${res.locals.chatid}`, {
+    fetch(`${BASE_URL}chat/${res.locals.chatid}`, {
         method : "PUT",
         body: JSON.stringify(data),
         headers: {'Content-Type': 'application/json',
@@ -128,7 +135,7 @@ router.post("/", (req, res, next) => {
             "chatid": res.locals.chatid, 
             "memberid": req.body.members[i]
         };
-        fetch(`http://localhost:5000/api/chat/${res.locals.chatid}`, {
+        fetch(`${BASE_URL}chat/${res.locals.chatid}`, {
         method : "PUT",
         body: JSON.stringify(data),
         headers: {'Content-Type': 'application/json',
