@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
 const fetch = require("node-fetch");
-const BASE_URL = "http://localhost:5000/api/";
-// const BASE_URL = "https://cleverchat.herokuapp.com/api/";
+// const BASE_URL = "http://localhost:5000/api/";
+const BASE_URL = "https://cleverchat.herokuapp.com/api/";
 // returns a list of all the chats in the databaseUrl
 
 /**
