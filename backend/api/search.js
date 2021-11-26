@@ -68,6 +68,7 @@ router.post("/", (request, response, next) => {
         if(result.rowCount > 0) {
             response.send({
                 success: true,
+                search: request.body.search,
                 user: result.rows
             })
         }
