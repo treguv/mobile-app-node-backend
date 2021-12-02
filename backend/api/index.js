@@ -14,6 +14,7 @@ const contactRoutes = require('./contact');
 const weatherRoutes = require('./weather')
 const messagesRoutes = require('./messages');
 const pushyRegisterRoutes = require('./pushyregister');
+const username = require("./username");
 
 router.use("/chat",checkToken, chatRoutes);
 router.use("/passwordreset",passwordResetRoutes);
@@ -25,6 +26,7 @@ router.use("/contact", checkToken, contactRoutes);
 router.use("/weather",weatherRoutes);
 router.use("/messages", checkToken, messagesRoutes);
 router.use("/pushyauth", checkToken, pushyRegisterRoutes);
+router.use("/username", username);
 
 module.exports = router;
 
