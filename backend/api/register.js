@@ -2,8 +2,8 @@ const router = require("express").Router();
 const pool = require("../../utilities/sqlConnection");
 
 //account cred validation
-const isStringProvided = require('../../utilities/validationUtils').isStringProvided
 const isValidName = require('../../utilities/validationUtils').isValidName
+const isValidUsername = require('../../utilities/validationUtils').isValidUsername
 const isValidEmail= require('../../utilities/validationUtils').isValidEmail
 const isValidPassword= require('../../utilities/validationUtils').isValidPassword
 
@@ -29,6 +29,7 @@ router.get("/", (req, res) => {
  * 
  * @apiParam {String} firstName User's first name
  * @apiParam {String} lastName User's last name
+ * @apiParam {String} username User's unique screen name
  * @apiParam {String} email User's email for the new account
  * @apiParam {String} password User's password for the new account
  * 
@@ -52,6 +53,7 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
+    const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
     const verification = 0; // 0 = unverified, 1 = verified
@@ -59,6 +61,7 @@ router.post("/", (req, res) => {
     // If the fields of registration are properly formatted
     if(isValidName(firstName) 
         && isValidName(lastName)
+        && isValidUsername(username)
         && isValidEmail(email) 
         && isValidPassword(password)) {
 
@@ -71,7 +74,7 @@ router.post("/", (req, res) => {
         const query = "INSERT INTO MEMBERS(FirstName, LastName, Username, Email, " 
             + "Password, Salt, Verification) VALUES ($1, $2, $3, $4, $5, $6, $7) " 
             + "RETURNING Email";
-        const values = [firstName, lastName, email, email, salted_hash_password, salt, 
+        const values = [firstName, lastName, username, email, salted_hash_password, salt, 
             verification];
 
         // Send the sql to the database
@@ -102,11 +105,14 @@ router.post("/", (req, res) => {
                 success:true,
                 email:result.rows[0].email
             })
-        }).catch((error) => { 
+        }).catch(error => { 
             console.log(error)
             // If email already exists on another account in the database
-            if (error.constraint == "members_username_key"
-                    || error.constraint == "members_email_key") {
+            if (error.constraint == "members_username_key") {
+                res.status(400).send({
+                    message: "Username exists"
+                })
+            } else if (error.constraint == "members_email_key") {
                 res.status(400).send({
                     message: "Email exists"
                 })
@@ -124,6 +130,9 @@ router.post("/", (req, res) => {
         if (!isValidName(firstName) || !(isValidName(lastName))) {
             errorMessage = "First and last names must be 2-255 characters long and only "
             + "contain letters, spaces, or hyphens"
+        } else if (!isValidUsername(username)) {
+            errorMessage = "Usernames must be 2-24 characters long and only contain " 
+            + "letters, numbers, hyphens, or underscores"
         } else if (!isValidEmail(email)) {
             errorMessage = "Emails must be 3-255 characters long, must contain an \"@\"" 
             + "sign, and only contain letters, numbers, hyphens, underscores, or periods"
