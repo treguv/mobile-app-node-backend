@@ -313,6 +313,7 @@ router.put("/:chatid", (req,res,next) => {
  */
 router.delete("/:id", (req, res, next) => {
     //check to see if the chat Exists
+    console.log("Chat delete request recieved!");
     const query = " select * from chats where chatid = $1";
     const values = [req.params.id];
     pool.query(query, values)
