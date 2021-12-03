@@ -21,6 +21,7 @@ const { isStringProvided, isValidEmail } = require("../../utilities/validationUt
  * 
  * @apiError (400: Missing Parameters) {String} message "Missing required information"
  * @apiError (404: Email Not Found) {String} message "Email not found"
+ * @apiError (400: Missing Parameters) {String} message "This user don't have any contact"
  * @apiError (400: SQL Error) {String} message "SQL error"
  * @apiError (400: Missing Parameters) {String} message "This user don't have any contact"
  * 
@@ -52,7 +53,7 @@ router.post("/list", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 82",
+            message: "SQL Error 56",
             error: error
         })
     })
@@ -73,7 +74,7 @@ router.post("/list", (request, response, next) => {
         }
     }).catch(err => {
         response.status(400).send({
-            message: "SQL error 48",
+            message: "SQL error 77",
             error: err
         })
     })
@@ -141,7 +142,7 @@ router.post("/add", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 82",
+            message: "SQL Error 145",
             error: error
         })
     })
@@ -161,7 +162,7 @@ router.post("/add", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 102",
+            message: "SQL Error 165",
             error: error
         })
     })
@@ -180,7 +181,7 @@ router.post("/add", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 124",
+            message: "SQL Error 184",
             error: error
         })
     })
@@ -194,7 +195,7 @@ router.post("/add", (request, response, next) => {
             next()
         }).catch(err => {
             response.status(400).send({
-                message: "SQL Error",
+                message: "SQL Error 198",
                 error: err
             })
         })
@@ -211,7 +212,7 @@ router.post("/add", (request, response, next) => {
             })
         }).catch(err => {
             response.status(400).send({
-                message: "SQL Error",
+                message: "SQL Error 215",
                 error: err
             })
     })
@@ -262,7 +263,7 @@ router.post("/add", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 193",
+            message: "SQL Error 266",
             error: error
         })
     })
@@ -282,7 +283,7 @@ router.post("/add", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 213",
+            message: "SQL Error 286",
             error: error
         })
     })
@@ -301,7 +302,7 @@ router.post("/add", (request, response, next) => {
         }
     }).catch(error => {
         response.status(400).send({
-            message: "SQL Error 232",
+            message: "SQL Error 305",
             error: error
         })
     })
@@ -317,7 +318,7 @@ router.post("/add", (request, response, next) => {
             })
         }).catch(err => {
             response.status(400).send({
-                message: "SQL Error 249",
+                message: "SQL Error 321",
                 error: err
             })
         })

@@ -30,7 +30,7 @@ router.get("/people", (request, response) => {
         }
     }).catch(err => {
         response.status(400).send({
-            message: "SQL error",
+            message: "SQL error 33",
             error: err
         })
     })
@@ -49,7 +49,7 @@ router.get("/people", (request, response) => {
  */ 
 router.post("/", (request, response, next) => {
     //validate on empty parameters
-    if (request.body.search === undefined || !isStringProvided(request.body.search)) {
+    if (!isStringProvided(request.body.email) || !isStringProvided(request.body.search)) {
         response.status(400).send({
             message: "Missing required information"
         })
@@ -57,21 +57,40 @@ router.post("/", (request, response, next) => {
         //pass to search
         next()
     }
-}, (request, response) => {
+}, (request, response, next) => {
+    //Validate email and get memberID from this email
+    let value = [request.body.email]
+    let query = "SELECT MemberID FROM Members WHERE Email LIKE '%"+value+"%'"
+    
+    pool.query(query).then(result => {
+        if (result.rowCount == 0) {
+            response.status(404).send({
+                message: "Email not found"
+            })
+        } else {
+            response.locals.memberidA = result.rows[0]
+            next()
+        }
+    }).catch(error => {
+        response.status(400).send({
+            message: "SQL Error 76",
+            error: error
+        })
+    })
+}, (request, response, next) => {
+    //Return MemberID from search
     let value = [request.body.search]
-    let query = "SELECT Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE Username LIKE '%"+value+"%'"
+    let query = "SELECT MemberID FROM Members WHERE Username LIKE '%"+value+"%'"
     + "OR Email LIKE '%"+value+"%' OR CONCAT(FirstName, ' ', LastName) LIKE '%"+value+"%'"
     + "OR FirstName LIKE '%"+value+"%' OR LastName LIKE '%"+value+"%'"
 
     pool.query(query).then(result => {
-        //if user exist
+        //user found
         if(result.rowCount > 0) {
-            response.send({
-                success: true,
-                search: request.body.search,
-                user: result.rows
-            })
-        }
+                //Save the result into local variable
+                response.locals.searchResults = result.rows[0],
+                next()
+            }
         else {
             response.status(400).send({
                 message: "Can't find this user"
@@ -79,7 +98,70 @@ router.post("/", (request, response, next) => {
         }
     }).catch(err => {
         response.status(400).send({
-            message: "SQL error",
+            message: "SQL error 101",
+            error: err
+        })
+    })
+}, (request, response, next)  => {
+    //Validate if users search for themselves
+    let values = [request.body.email, response.locals.searchResults.memberid]
+    let query = "SELECT * FROM Members WHERE Email = $1 AND MemberID = $2"
+    pool.query(query, values).then(result => {
+        //user found
+        if(result.rowCount > 0) {
+            response.status(400).send({
+                message: "Can't search for your self"
+            })
+        }
+        else {
+            next()
+        }
+    }).catch(err => {
+        response.status(400).send({
+            message: "SQL error 121",
+            error: err
+        })
+    })
+}, (request, response, next)  => {
+    //Validate if user exist in contact list
+    let values = [response.locals.memberidA.memberid, response.locals.searchResults.memberid]
+    let query = "SELECT * FROM Contacts WHERE MemberID_A = $1 AND MemberID_B = $2"
+    pool.query(query, values).then(result => {
+        //user found
+        if(result.rowCount > 0) {
+            response.status(400).send({
+                message: "User already in contact list"
+            })
+        }
+        else {
+            next()
+        }
+    }).catch(err => {
+        response.status(400).send({
+            message: "SQL error 141",
+            error: err
+        })
+    })
+}, (request, response) => {
+    let value = [response.locals.searchResults.memberid]
+    let query = "SELECT Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE Members.MemberID = $1"
+    pool.query(query, value).then(result => {
+        //user found
+        if(result.rowCount > 0) {
+            response.send({
+                success: true,
+                search: request.body.search,
+                user: result.rows[0]
+            })
+            }
+        else {
+            response.status(400).send({
+                message: "Can't find this user"
+            })
+        }
+    }).catch(err => {
+        response.status(400).send({
+            message: "SQL error 144",
             error: err
         })
     })
