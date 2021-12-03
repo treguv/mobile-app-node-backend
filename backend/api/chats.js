@@ -357,5 +357,42 @@ router.delete("/:id", (req, res, next) => {
     })
 })
 
+/**
+ * Get all the members of the given chat
+ */
+router.get("/members/:id", (req, res, next) => {
+    /**
+    validate that the requested chat exists
+    */
+   const query  = "Select * from chats where chatid = $1";
+   const values = [req.params.id];
+   pool.query(query, values)
+   .then(data => {
+       //check if the chat exists
+        if(data.rowCount > 0){
+        //chat Exist
+            next();
+        } else {
+            res.status(404).json({message:"Chat not found..."});
+        }
+   })
+   .catch(err => {
+       console.log(err);
+       res.status(500).json(err);
+   })
+}, (req, res, next) => {
+    //get all the members from the current chat
+    const query = "select * from chatmembers where chatid = $1";
+    const values = [req.params.chatid];
+    pool.query(query, values)
+    .then(result => {
+        console.log("The chat members are :",result.rows);
+        res.send("ok");
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    })
+})
 
 module.exports = router;
