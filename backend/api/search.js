@@ -50,6 +50,7 @@ router.get("/people", (request, response) => {
 router.post("/", (request, response, next) => {
     //validate on empty parameters
     if (!isStringProvided(request.body.email) || !isStringProvided(request.body.search)) {
+        console.log("Missing required information")
         response.status(400).send({
             message: "Missing required information"
         })
@@ -64,6 +65,7 @@ router.post("/", (request, response, next) => {
     
     pool.query(query).then(result => {
         if (result.rowCount == 0) {
+            console.log("Email not found")
             response.status(404).send({
                 message: "Email not found"
             })
@@ -72,6 +74,7 @@ router.post("/", (request, response, next) => {
             next()
         }
     }).catch(error => {
+        console.log("SQL Error 76")
         response.status(400).send({
             message: "SQL Error 76",
             error: error
@@ -92,11 +95,13 @@ router.post("/", (request, response, next) => {
                 next()
             }
         else {
+            console.log("can't find this user")
             response.status(400).send({
                 message: "Can not find this user"
             })
         }
     }).catch(err => {
+        console.log("SQL error 101")
         response.status(400).send({
             message: "SQL error 101",
             error: err
@@ -109,6 +114,7 @@ router.post("/", (request, response, next) => {
     pool.query(query, values).then(result => {
         //user found
         if(result.rowCount > 0) {
+            console.log("Can't search for yourself")
             response.status(400).send({
                 message: "Can't search for yourself"
             })
@@ -117,6 +123,7 @@ router.post("/", (request, response, next) => {
             next()
         }
     }).catch(err => {
+        console.log("SQL error 121")
         response.status(400).send({
             message: "SQL error 121",
             error: err
@@ -129,6 +136,7 @@ router.post("/", (request, response, next) => {
     pool.query(query, values).then(result => {
         //user found
         if(result.rowCount > 0) {
+            console.log("User already in contact list")
             response.status(400).send({
                 message: "User already in contact list"
             })
@@ -137,6 +145,7 @@ router.post("/", (request, response, next) => {
             next()
         }
     }).catch(err => {
+        console.log("SQL error 141")
         response.status(400).send({
             message: "SQL error 141",
             error: err
@@ -148,6 +157,7 @@ router.post("/", (request, response, next) => {
     pool.query(query, value).then(result => {
         //user found
         if(result.rowCount > 0) {
+            console.log("Valid search found!")
             response.send({
                 success: true,
                 search: request.body.search,
@@ -155,11 +165,13 @@ router.post("/", (request, response, next) => {
             })
             }
         else {
+            console.log("Can't find this user")
             response.status(400).send({
                 message: "Can't find this user"
             })
         }
     }).catch(err => {
+        console.log("SQL error 144")
         response.status(400).send({
             message: "SQL error 144",
             error: err
