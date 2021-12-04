@@ -93,7 +93,7 @@ router.post("/", (request, response, next) => {
             }
         else {
             response.status(400).send({
-                message: "Can't find this user"
+                message: "Can not find this user"
             })
         }
     }).catch(err => {
@@ -110,7 +110,7 @@ router.post("/", (request, response, next) => {
         //user found
         if(result.rowCount > 0) {
             response.status(400).send({
-                message: "Can't search for your self"
+                message: "Can't search for yourself"
             })
         }
         else {
@@ -151,7 +151,7 @@ router.post("/", (request, response, next) => {
             response.send({
                 success: true,
                 search: request.body.search,
-                user: result.rows[0]
+                user: result.rows
             })
             }
         else {
