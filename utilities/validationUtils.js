@@ -1,7 +1,7 @@
 const MAX_INPUT_LENGTH = 255
 const MIN_NAME_LENGTH = 2
 const MIN_USERNAME_LENGTH = 2
-const MAX_USERNAME_LENGTH = 24
+const MAX_USERNAME_LENGTH = 18
 const MIN_EMAIL_LENGTH = 3
 const MIN_PASSWORD_LENGTH = 7
 
@@ -38,7 +38,7 @@ let isValidName = (name) => {
  * Checks the parameter to see if it is a valid username.
  * 
  * @param {string} username the username to check
- * @returns true if the username is 2-24 characters long and only contain letters, 
+ * @returns true if the username is 2-18 characters long and only contain letters, 
  * numbers, hyphens, or underscores. False otherwise.
  */
 let isValidUsername = (username) => {
