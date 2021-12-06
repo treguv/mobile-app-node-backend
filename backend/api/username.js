@@ -13,8 +13,8 @@ const pool = require("../../utilities/sqlConnection");
  * @apiError (400: Email not in Database) {String} message "Email does not exist in database"
  * @apiError (400: SQL Failed) {String} message "Username Retrieval SQL failed"
  */ 
-router.get("/", (req, res) => {
-    const email = req.body.email;
+router.get("/:email", (req, res) => {
+    const email = req.params.email;
 
     const query = "SELECT Username FROM Members WHERE Email='" + email + "'"
     console.log(query)
