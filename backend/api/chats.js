@@ -382,17 +382,38 @@ router.get("/members/:id", (req, res, next) => {
    })
 }, (req, res, next) => {
     //get all the members from the current chat
-    const query = "select * from chatmembers where chatid = $1";
-    const values = [req.params.chatid];
+    const query = "select memberid from chatmembers where chatid = $1";
+    const values = [req.params.id];
+    console.log("getting members of chat: ", req.params.id)
     pool.query(query, values)
     .then(result => {
         console.log("The chat members are :",result.rows);
-        res.send("ok");
+        res.locals.chatmembers = result.rows;
+        // res.json(result.rows);
+        next();
     })
     .catch(err => {
         console.log(err);
         res.status(500).json(err);
     })
-})
+}, (req, res, next) => {
+    //get all members based on their id
+    let memberData = [];
+    //TODO This is terrible practice but its too late in the night to think of how to work with this
+    const query = "select memberid,firstname,lastname,username,email from members where memberid = ANY($1::int[])";
+    res.locals.chatmembers.forEach(memberId => {
+        memberData.push(memberId.memberid);
+    })
+    console.log(memberData);
+    const values = [memberData];
+    pool.query(query, values)
+    .then(result => {
+        res.status(200).json({members:result.rows});
+    })
+    .catch(err => {
+        console.log(err);
+        res.send(500).json(err);
+    })
+}(req,res,next))
 
 module.exports = router;
