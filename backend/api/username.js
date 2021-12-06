@@ -17,19 +17,23 @@ router.get("/", (req, res) => {
     const email = req.body.email;
 
     const query = "SELECT Username FROM Members WHERE Email='" + email + "'"
-
+    console.log(query)
     pool.query(query)
     .then(result => {
-        if (result.rows.length == 0) {
+        console.log(result)
+        if (result.rowCount < 1) {
+            console.log("/username: Email does not exist in database")
             res.status(400).send({
                 message: "Email does not exist in database"
             });
         } else {
+            console.log("/username: Username found successfully!")
             res.status(200).send({
                 username:result.rows[0].username
             });
         }
     }).catch(error => {
+        console.log("/username: Username Retrieval SQL Failed")
         res.status(400).send({
             message: "Username Retrieval SQL Failed"
         });
