@@ -414,6 +414,32 @@ router.get("/members/:id", (req, res, next) => {
         console.log(err);
         res.send(500).json(err);
     })
-}(req,res,next))
+},(req,res,next) => {
 
+})
+
+/**
+ * Delete a member
+ * body contains memberid and chatid
+ */
+
+router.post('/delete', (req, res, ) => {
+    const query = "delete from chatmembers where memberid = $1 and chatid = $2 returning memberid";
+    const values = [req.body.memberid, req.body.chatid];
+    console.log(values);
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows);
+        if (result.rows.length > 0) {
+            //deleted at least one 
+            res.status(200).json({message:result.rows});
+        } else {
+            res.status("404").json({message:"Chat member not found"});
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(500).json({message: error});
+    })
+})
 module.exports = router;
