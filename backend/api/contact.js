@@ -3,7 +3,7 @@ const router = require("express").Router();
 const { response, request } = require("express");
 const pool = require("../../utilities/sqlConnection");
 const { isStringProvided, isValidEmail } = require("../../utilities/validationUtils");
-
+const msg_functions = require('../../utilities/exports').messaging
 
 /**
  * @apiDefine JSONError
@@ -330,7 +330,7 @@ router.post("/sendRequest", (request, response, next) => {
             })
         })
 }, (request, response, next) => {
-    //insert 2 user in contact 
+    //add A to B's list 
     let values = [response.locals.userBMemberID.memberid, response.locals.userAMemberID.memberid]
     let insert = "INSERT INTO Contacts(MemberID_A, MemberID_B)"
                 + "VALUES ($1, $2) RETURNING *"
@@ -348,15 +348,39 @@ router.post("/sendRequest", (request, response, next) => {
     let update = "UPDATE Contacts SET Verified = 2 WHERE MemberID_A = $1 AND MemberID_B = $2"
     pool.query(update, values)
         .then(result => {
-            response.send({
-                success: true,
-                message: "successfully send request"
-            })
+            // Success! send to pushytoken
+            next()
         }).catch(err => {
             response.status(400).send({
-                message: "SQL Error",
+                message: "SQL Error with Inserting",
                 error: err
             })
+    })
+}, (request, response) => {
+    // send a notification of this message to ALL members with registered tokens
+    let query = `SELECT token FROM Push_Token
+                INNER JOIN Members ON
+                Push_Token.memberid=Members.memberid
+                WHERE Members.memberId=$1`
+    let values = [response.locals.userBMemberID.memberid]
+    console.log("MemberID_B=" + response.locals.userBMemberID.memberid)
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows)
+        result.rows.forEach(entry => 
+            msg_functions.sendContanctToIndividual(
+                entry.token))
+        console.log("Pushy token sent!")
+        response.send({
+            success: true,
+            message: "successfully added this contact"
+        })
+    }).catch(err => {
+
+        response.status(400).send({
+            message: "SQL Error on select from push token",
+            error: err
+        })
     })
 });
 

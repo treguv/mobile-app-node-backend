@@ -17,6 +17,7 @@ const hourlyWeatherRoutes = require('./hourly_weather');
 const dailyWeatherRoutes = require('./daily_weather');
 const messagesRoutes = require('./messages');
 const pushyRegisterRoutes = require('./pushyregister');
+const username = require("./username");
 
 router.use("/chat",checkToken, chatRoutes);
 router.use("/passwordreset",passwordResetRoutes);
@@ -31,6 +32,7 @@ router.use("/hourly_weather",hourlyWeatherRoutes);
 router.use("/daily_weather",dailyWeatherRoutes);
 router.use("/messages", checkToken, messagesRoutes);
 router.use("/pushyauth", checkToken, pushyRegisterRoutes);
+router.use("/username", username);
 
 module.exports = router;
 
