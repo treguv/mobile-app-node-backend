@@ -50,7 +50,6 @@ router.get("/people", (request, response) => {
 router.post("/", (request, response, next) => {
     //validate on empty parameters
     if (!isStringProvided(request.body.email) || !isStringProvided(request.body.search)) {
-        console.log("Missing required information")
         response.status(400).send({
             message: "Missing required information"
         })
@@ -65,16 +64,14 @@ router.post("/", (request, response, next) => {
     
     pool.query(query).then(result => {
         if (result.rowCount == 0) {
-            console.log("Email not found")
             response.status(404).send({
                 message: "Email not found"
             })
         } else {
-            response.locals.memberidA = result.rows[0]
+            response.locals.memberAid = result.rows[0]
             next()
         }
     }).catch(error => {
-        console.log("SQL Error 76")
         response.status(400).send({
             message: "SQL Error 76",
             error: error
@@ -91,89 +88,73 @@ router.post("/", (request, response, next) => {
         //user found
         if(result.rowCount > 0) {
                 //Save the result into local variable
-                response.locals.searchResults = result.rows[0],
+                response.locals.searchResults = result.rows,
                 next()
             }
         else {
-            console.log("can't find this user")
             response.status(400).send({
-                message: "Can not find this user"
+                message: "Can't find this user"
             })
         }
     }).catch(err => {
-        console.log("SQL error 101")
         response.status(400).send({
             message: "SQL error 101",
             error: err
         })
     })
 }, (request, response, next)  => {
-    //Validate if users search for themselves
-    let values = [request.body.email, response.locals.searchResults.memberid]
-    let query = "SELECT * FROM Members WHERE Email = $1 AND MemberID = $2"
-    pool.query(query, values).then(result => {
+    let value = [response.locals.memberAid.memberid]
+    let query = "SELECT MemberID_B FROM Contacts WHERE MemberID_A = $1"
+    pool.query(query, value).then(result => {
         //user found
         if(result.rowCount > 0) {
-            console.log("Can't search for yourself")
-            response.status(400).send({
-                message: "Can't search for yourself"
-            })
+            response.locals.exist = result.rows,
+            console.log("This user have these contacts")
+            console.log(response.locals.exist),
+            next()
         }
         else {
+            console.log("This user don't have any contact")
+            response.locals.exist.memberid_b = 0,
             next()
         }
     }).catch(err => {
-        console.log("SQL error 121")
         response.status(400).send({
             message: "SQL error 121",
             error: err
         })
     })
-}, (request, response, next)  => {
-    //Validate if user exist in contact list
-    let values = [response.locals.memberidA.memberid, response.locals.searchResults.memberid]
-    let query = "SELECT * FROM Contacts WHERE MemberID_A = $1 AND MemberID_B = $2"
+}, (request, response) => {
+    let searchID = []
+    response.locals.searchResults.forEach(memberId => {
+        searchID.push(memberId.memberid);
+    })
+    let existID = []
+    response.locals.exist.forEach(theId => {
+        existID.push(theId.memberid_b)
+    })
+    console.log(searchID)
+    console.log(existID)
+    let values = [response.locals.memberAid.memberid, searchID, existID]
+    let query = "SELECT Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE MemberID = ANY($2::int[]) AND MemberID != $1 AND NOT MemberID = ANY($3::int[])"
+
     pool.query(query, values).then(result => {
         //user found
         if(result.rowCount > 0) {
-            console.log("User already in contact list")
-            response.status(400).send({
-                message: "User already in contact list"
-            })
-        }
-        else {
-            next()
-        }
-    }).catch(err => {
-        console.log("SQL error 141")
-        response.status(400).send({
-            message: "SQL error 141",
-            error: err
-        })
-    })
-}, (request, response) => {
-    let value = [response.locals.searchResults.memberid]
-    let query = "SELECT Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE Members.MemberID = $1"
-    pool.query(query, value).then(result => {
-        //user found
-        if(result.rowCount > 0) {
-            console.log("Valid search found!")
             response.send({
                 success: true,
                 search: request.body.search,
                 user: result.rows
             })
-            }
+        }
         else {
-            console.log("Can't find this user")
             response.status(400).send({
                 message: "Can't find this user"
             })
         }
     }).catch(err => {
-        console.log("SQL error 144")
         response.status(400).send({
-            message: "SQL error 144",
+            message: "SQL error",
             error: err
         })
     })
