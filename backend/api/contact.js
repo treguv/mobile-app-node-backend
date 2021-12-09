@@ -216,16 +216,17 @@ router.post("/add", (request, response, next) => {
 }, (request, response) => {
     // send a notification of this message to ALL members with registered tokens
     let query = `SELECT token FROM Push_Token
-                INNER JOIN ChatMembers ON
-                Push_Token.memberid=ChatMembers.memberid
-                WHERE ChatMembers.chatId=$1`
-    let values = [request.decoded.MemberID_B]
+                INNER JOIN Members ON
+                Push_Token.memberid=Members.memberid
+                WHERE Members.memberId=$1`
+    let values = [response.locals.userBMemberID.memberid]
+    console.log("MemberID_B=" + response.locals.userBMemberID.memberid)
     pool.query(query, values)
     .then(result => {
+        console.log(result.rows)
         result.rows.forEach(entry => 
             msg_functions.sendContanctToIndividual(
-                entry.token, 
-                response.message))
+                entry.token))
         console.log("Pushy token sent!")
         response.send({
             success: true,
