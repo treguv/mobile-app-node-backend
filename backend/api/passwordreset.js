@@ -139,4 +139,51 @@ router.post("/reset/:id", (req, res) => {
      }
     
 })
+
+router.post("/verify/:id", (req, res, next) => {
+    //verify that the current password matches the one they seny
+    let query = "SELECT * FROM members WHERE memberid = $1";
+    const values = [req.params.id];
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows);
+        if(result.rows.length > 0){
+            const checkPassword = generateHash(req.body.password, result.rows[0].salt);
+            if(result.rows[0].password === checkPassword){
+                //the user entered their password and we can reset the password
+                next(); 
+            }
+        } else {
+            res.status(404).json({ message:"User not found"})
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(400).json({message: "Password does not match existing password"})
+    }) 
+
+},(req, res) => {
+     // console.log(req.body);
+    // console.log(req.params.id);
+    const password = req.body.newPassword;
+     if(isValidPassword(password)) {
+         //update to update the salt val in db
+          // Generate salt then hash the password with the salt before storing in the 
+          // database
+        let salt = generateSalt(32)
+        let saltedHashPassword = generateHash(password, salt);
+
+        const query = "UPDATE members SET password = $1, salt =$2 WHERE memberid = $3";
+        const values = [saltedHashPassword,salt, req.params.id];
+
+        //make query
+        pool.query(query, values)
+        .then(result => {
+            console.log(result);
+            res.status(200).json({"message":"Password updated successfully"})
+        })
+     }else {
+         res.status(400).json({"message": "Invalid Password"})
+     }
+})
 module.exports = router;
