@@ -442,4 +442,28 @@ router.post('/delete', (req, res, ) => {
         res.status(500).json({message: error});
     })
 })
+router.post("/add", (req, res, next) => {
+    //TODO add eror checking
+    const data = JSON.parse(req.body.members);
+    for(let i = 0; i < data.length; i++) {
+        console.log(data[i]);
+    }
+    res.status(200).json({message:"Chat member added successfully"});
+})
+/**
+ * helper funciton to add a chat member to an existing chat
+ */
+
+ const addChatMember =(chatid, memberid) => {
+    //check to see if the chat exists
+    //TODO add validation for things existing 
+    const query = `INSERT INTO ChatMembers(ChatId, MemberId)
+    VALUES ($1, $2)
+    RETURNING *`
+    const values =(chatid, memberid);
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows);
+    })
+}
 module.exports = router;
