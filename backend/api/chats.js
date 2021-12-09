@@ -444,9 +444,13 @@ router.post('/delete', (req, res, ) => {
 })
 router.post("/add", (req, res, next) => {
     //TODO add eror checking
-    const data = JSON.parse(req.body.members);
+    console.log(req.body.members)
+    // const data = JSON.parse(req.body.members);
+    const data = req.body.members;
+    console.log("data " + data);
     for(let i = 0; i < data.length; i++) {
         console.log(data[i]);
+        addChatMember(req.body.chatid,data[i])
     }
     res.status(200).json({message:"Chat member added successfully"});
 })
@@ -460,10 +464,13 @@ router.post("/add", (req, res, next) => {
     const query = `INSERT INTO ChatMembers(ChatId, MemberId)
     VALUES ($1, $2)
     RETURNING *`
-    const values =(chatid, memberid);
+    const values =[chatid, memberid];
     pool.query(query, values)
     .then(result => {
         console.log(result.rows);
+    })
+    .catch(err => {
+        console.log(err);
     })
 }
 module.exports = router;
