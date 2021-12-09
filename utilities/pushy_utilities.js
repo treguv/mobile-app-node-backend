@@ -23,12 +23,32 @@ function sendMessageToIndividual(token, message) {
         }
 
         // Log success 
-        console.log('Push sent successfully! (ID: ' + id + ')')
+        console.log('Chat Push sent successfully! (ID: ' + id + ')')
     })
 }
 
-//add other "sendTypeToIndividual" functions here. Don't forget to export them
+//use to send contact to a specific client by the token
+function sendContanctToIndividual(token) {
+
+    //Specify a general contact request has been sent
+    var data = {
+        "type": "contact"
+    }
+
+
+    // Send push notification via the Send Notifications API 
+    pushyAPI.sendPushNotification(data, token, {}, function (err, id) {
+        // Log errors to console 
+        if (err) {
+            return console.log('Fatal Error', err);
+        }
+
+        // Log success 
+        console.log('Contact Push sent successfully!')
+    })
+}
 
 module.exports = {
-    sendMessageToIndividual
+    sendMessageToIndividual,
+    sendContanctToIndividual
 }

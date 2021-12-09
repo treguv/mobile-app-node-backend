@@ -3,7 +3,7 @@ const router = require("express").Router();
 const { response, request } = require("express");
 const pool = require("../../utilities/sqlConnection");
 const { isStringProvided, isValidEmail } = require("../../utilities/validationUtils");
-
+const msg_functions = require('../../utilities/exports').messaging
 
 /**
  * @apiDefine JSONError
@@ -198,22 +198,45 @@ router.post("/add", (request, response, next) => {
                 error: err
             })
         })
-}, (request, response) => {
+}, (request, response, next) => {
     //add A to B's list 
     let values = [response.locals.userBMemberID.memberid, response.locals.userAMemberID.memberid]
     let insert = "INSERT INTO Contacts(MemberID_A, MemberID_B)"
                 + "VALUES ($1, $2) RETURNING *"
     pool.query(insert, values)
         .then(result => {
-            response.send({
-                success: true,
-                message: "successfully added this contact"
-            })
+            // Success! send to pushytoken
+            next()
         }).catch(err => {
             response.status(400).send({
-                message: "SQL Error",
+                message: "SQL Error with Inserting",
                 error: err
             })
+    })
+}, (request, response) => {
+    // send a notification of this message to ALL members with registered tokens
+    let query = `SELECT token FROM Push_Token
+                INNER JOIN ChatMembers ON
+                Push_Token.memberid=ChatMembers.memberid
+                WHERE ChatMembers.chatId=$1`
+    let values = [request.decoded.MemberID_B]
+    pool.query(query, values)
+    .then(result => {
+        result.rows.forEach(entry => 
+            msg_functions.sendContanctToIndividual(
+                entry.token, 
+                response.message))
+        console.log("Pushy token sent!")
+        response.send({
+            success: true,
+            message: "successfully added this contact"
+        })
+    }).catch(err => {
+
+        response.status(400).send({
+            message: "SQL Error on select from push token",
+            error: err
+        })
     })
 });
 
