@@ -1,5 +1,5 @@
 //express is the framework we're going to use to handle requests
-const express = require('express')
+const express = require('express'),
 //Create a new instance of express
 //const app = express()
 
@@ -19,5 +19,4 @@ router.use("/api", apiRoutes);
  * apidoc -i backend/api -o apidoc/
  */
 router.use("/doc", express.static('apidoc'))
-
 module.exports = router;
