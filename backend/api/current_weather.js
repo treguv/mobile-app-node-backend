@@ -13,10 +13,13 @@ const request = require('request');
  * @apiError (Error) {Object} error Description of error
  */ 
  router.get("/", (req, res) => {
-    let zip_code = req.headers.zipCode
-    let url = "https://api.openweathermap.org/data/2.5/weather?&zip="+ 98404 + ",us&appid=" + API_KEY;
-    if(zip_code != null){
-        url = "https://api.openweathermap.org/data/2.5/weather?&zip="+ zip_code + ",us&appid=" + API_KEY;
+    let zip_code = req.headers.zip;
+    let lat = req.headers.latitude
+    let lon = req.headers.longitude
+    console.log(zip_code);
+    let url = "https://api.openweathermap.org/data/2.5/onecall?&units=imperial&lat="+ lat + "&lon=" + lon + "&exclude=minutely,alert,hourly,current&appid=" + API_KEY ;
+    if(zip_code != undefined){
+        url = "https://api.openweathermap.org/data/2.5/weather?&units=imperial&zip="+ zip_code + ",us&appid=" + API_KEY;
     }
     request(url, function (error, response, body) {
         if (error) {
