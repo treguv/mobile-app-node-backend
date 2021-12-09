@@ -48,6 +48,7 @@ router.get("/people", (request, response) => {
  * @apiError (400: SQL Error) {Object} json "SQL error" plus error details
  */ 
 router.post("/", (request, response, next) => {
+    response.locals.exist = {}
     //validate on empty parameters
     if (!isStringProvided(request.body.email) || !isStringProvided(request.body.search)) {
         response.status(400).send({
@@ -107,29 +108,37 @@ router.post("/", (request, response, next) => {
     let query = "SELECT MemberID_B FROM Contacts WHERE MemberID_A = $1"
     pool.query(query, value).then(result => {
         //user found
+        console.log(result.rowCount);
+        console.log(result.rows);
         if(result.rowCount > 0) {
-            response.locals.exist = result.rows,
+            response.locals.exist = result.rows;
             console.log("This user have these contacts")
-            console.log(response.locals.exist),
+            console.log(response.locals.exist);
             next()
         }
         else {
             console.log("This user don't have any contact")
-            response.locals.exist.memberid_b = 0,
+            // response.locals.exist.memberid_b = 0;
+            response.locals.exist = [];
+            console.log("Going next")
             next()
         }
     }).catch(err => {
+        console.log("ERROR!"  + err.message);
         response.status(400).send({
             message: "SQL error 121",
             error: err
         })
     })
 }, (request, response) => {
+    console.log(response.locals.exist);
+    console.log("Made it into next!");
     let searchID = []
     response.locals.searchResults.forEach(memberId => {
         searchID.push(memberId.memberid);
     })
     let existID = []
+    console.log("Exist: " + response.locals.exist);
     response.locals.exist.forEach(theId => {
         existID.push(theId.memberid_b)
     })
@@ -141,6 +150,7 @@ router.post("/", (request, response, next) => {
     pool.query(query, values).then(result => {
         //user found
         if(result.rowCount > 0) {
+            console.log(result.rows);
             response.send({
                 success: true,
                 search: request.body.search,

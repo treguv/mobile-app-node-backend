@@ -265,6 +265,7 @@ router.post("/sendRequest", (request, response, next) => {
 },(request, response, next) => {
     //Validate username and get memberID from this username
     let value = [request.body.username]
+    console.log(value)
     let query = "SELECT MemberID FROM Members WHERE Username LIKE '%"+value+"%'"
 
     pool.query(query).then(result => {
