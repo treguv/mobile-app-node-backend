@@ -28,6 +28,7 @@ const msg_functions = require('../../utilities/exports').messaging
  */ 
 router.post("/list", (request, response, next) => {
     //Validate on empty parameters
+    console.log(request.body.email)
     if(!isStringProvided(request.body.email)) {
         response.status(400).send({
             message: "Missing required information"
@@ -51,27 +52,32 @@ router.post("/list", (request, response, next) => {
             next()
         }
     }).catch(error => {
+        console.log(error)
         response.status(400).send({
             message: "SQL Error",
             error: error
         })
     })
 }, (request, response) => {
+    console.log("62")
     let value = [response.locals.userMemberID.memberid]
     let query = "SELECT MemberID,Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE MemberID IN (SELECT MemberID_B FROM Contacts WHERE MemberID_A=$1 AND Verified = 1)";
     pool.query(query, value).then(result => {
-        if(result.rowCount > 0) {   
+        if(result.rowCount > 0) {
+            console.log("67")   
             response.send({
                 email: request.body.email,
                 rows: result.rows
             })
         }
         else {
+            console.log("72")
             response.status(400).send({
                 message: "This user don't have any contact"
             })
         }
     }).catch(err => {
+        console.log("80" + err)
         response.status(400).send({
             message: "SQL error",
             error: err
