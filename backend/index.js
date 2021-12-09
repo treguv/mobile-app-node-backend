@@ -19,5 +19,4 @@ router.use("/api", apiRoutes);
  * apidoc -i backend/api -o apidoc/
  */
 router.use("/doc", express.static('apidoc'))
-
 module.exports = router;

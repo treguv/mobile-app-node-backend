@@ -13,17 +13,17 @@ const request = require('request');
  * @apiError (Error) {Object} error Description of error
  */ 
  router.get("/", (req, res) => {
-    let lat = 47.25
-    let lon = 122.44
-    let zip_code = 98404
-    let url = "https://api.openweathermap.org/data/2.5/weather?units=metric&zip="+ zip_code + ",us&appid=" + API_KEY;
+    let lat = req.headers.latitude
+    let lon = req.headers.longitude
+    console.log(lat);
+    console.log(lon);
+    let url = "https://api.openweathermap.org/data/2.5/onecall?&units=imperial&lat="+ lat + "&lon=" + lon + "&exclude=minutely,alert,hourly,current&appid=" + API_KEY ;
     request(url, function (error, response, body) {
         if (error) {
             res.send(error)
         } else {
             // pass on everything (try out each of these in Postman to see the difference)
             // res.send(response);
-            
             // or just pass on the body
 
             var n = body.indexOf("{")

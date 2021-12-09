@@ -11,7 +11,10 @@ const passwordResetRoutes = require('./passwordreset');
 const chatRoutes = require('./chats');
 const searchRoutes = require('./search');
 const contactRoutes = require('./contact');
-const weatherRoutes = require('./weather')
+// const weatherRoutes = require('./current_weather');
+const currentWeatherRoutes = require('./current_weather');
+const hourlyWeatherRoutes = require('./hourly_weather');
+const dailyWeatherRoutes = require('./daily_weather');
 const messagesRoutes = require('./messages');
 const pushyRegisterRoutes = require('./pushyregister');
 
@@ -22,7 +25,10 @@ router.use("/signin", signInRoutes);
 router.use("/verification", verificationRoutes);
 router.use("/search", checkToken, searchRoutes);
 router.use("/contact", checkToken, contactRoutes);
-router.use("/weather",weatherRoutes);
+router.use("/current_weather",currentWeatherRoutes);
+// router.use("/current_weather",currentWeatherRoutes);
+router.use("/hourly_weather",hourlyWeatherRoutes);
+router.use("/daily_weather",dailyWeatherRoutes);
 router.use("/messages", checkToken, messagesRoutes);
 router.use("/pushyauth", checkToken, pushyRegisterRoutes);
 
