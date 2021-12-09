@@ -343,7 +343,7 @@ router.post("/sendRequest", (request, response, next) => {
                 error: err
             })
     })
-}, (request, response) => {
+}, (request, response, next) => {
     //Update verified number for the one who received the request (2)
     let values = [response.locals.userBMemberID.memberid, response.locals.userAMemberID.memberid]
     let update = "UPDATE Contacts SET Verified = 2 WHERE MemberID_A = $1 AND MemberID_B = $2"
@@ -352,6 +352,7 @@ router.post("/sendRequest", (request, response, next) => {
             // Success! send to pushytoken
             next()
         }).catch(err => {
+            console.log("Skipping next for contact adding pushytoken. " + err);
             response.status(400).send({
                 message: "SQL Error with Inserting",
                 error: err
