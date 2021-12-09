@@ -13,8 +13,8 @@ const request = require('request');
  * @apiError (Error) {Object} error Description of error
  */ 
  router.get("/", (req, res) => {
-    let lat = req.body.latitude
-    let lon = req.body.longitude
+    let lat = req.headers.latitude
+    let lon = req.headers.longitude
     let url = "https://api.openweathermap.org/data/2.5/onecall?lat="+ lat + "&lon=" + lon + "&exclude=minutely,alert,daily,curernt&appid=" + API_KEY ;
     request(url, function (error, response, body) {
         if (error) {
