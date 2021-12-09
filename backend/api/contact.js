@@ -60,7 +60,7 @@ router.post("/list", (request, response, next) => {
     let value = [response.locals.userMemberID.memberid]
     let query = "SELECT MemberID,Username, CONCAT(FirstName, ' ', LastName) AS Name FROM Members WHERE MemberID IN (SELECT MemberID_B FROM Contacts WHERE MemberID_A=$1 AND Verified = 1)";
     pool.query(query, value).then(result => {
-        if(result.rowCount > 0) {
+        if(result.rowCount > 0) {   
             response.send({
                 email: request.body.email,
                 rows: result.rows
@@ -269,6 +269,7 @@ router.post("/sendRequest", (request, response, next) => {
 
     pool.query(query).then(result => {
         if (result.rowCount == 0) {
+            console.log("Username not found...")
             response.status(404).send({
                 message: "Username not found"
             })
@@ -618,5 +619,5 @@ router.post("/responseRequest", (request, response, next) => {
     })
 });
 
-
 module.exports = router;
+

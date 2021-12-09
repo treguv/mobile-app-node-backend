@@ -313,6 +313,7 @@ router.put("/:chatid", (req,res,next) => {
  */
 router.delete("/:id", (req, res, next) => {
     //check to see if the chat Exists
+    console.log("Chat delete request recieved!");
     const query = " select * from chats where chatid = $1";
     const values = [req.params.id];
     pool.query(query, values)
@@ -355,4 +356,114 @@ router.delete("/:id", (req, res, next) => {
         res.status(500).json(err);
     })
 })
+
+/**
+ * Get all the members of the given chat
+ */
+router.get("/members/:id", (req, res, next) => {
+    /**
+    validate that the requested chat exists
+    */
+   const query  = "Select * from chats where chatid = $1";
+   const values = [req.params.id];
+   pool.query(query, values)
+   .then(data => {
+       //check if the chat exists
+        if(data.rowCount > 0){
+        //chat Exist
+            next();
+        } else {
+            res.status(404).json({message:"Chat not found..."});
+        }
+   })
+   .catch(err => {
+       console.log(err);
+       res.status(500).json(err);
+   })
+}, (req, res, next) => {
+    //get all the members from the current chat
+    const query = "select memberid from chatmembers where chatid = $1";
+    const values = [req.params.id];
+    console.log("getting members of chat: ", req.params.id)
+    pool.query(query, values)
+    .then(result => {
+        console.log("The chat members are :",result.rows);
+        res.locals.chatmembers = result.rows;
+        // res.json(result.rows);
+        next();
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    })
+}, (req, res, next) => {
+    //get all members based on their id
+    let memberData = [];
+    //TODO This is terrible practice but its too late in the night to think of how to work with this
+    const query = "select memberid,firstname,lastname,username,email from members where memberid = ANY($1::int[])";
+    res.locals.chatmembers.forEach(memberId => {
+        memberData.push(memberId.memberid);
+    })
+    console.log(memberData);
+    const values = [memberData];
+    pool.query(query, values)
+    .then(result => {
+        res.status(200).json({members:result.rows});
+    })
+    .catch(err => {
+        console.log(err);
+        res.send(500).json(err);
+    })
+},(req,res,next) => {
+
+})
+
+/**
+ * Delete a member
+ * body contains memberid and chatid
+ */
+
+router.post('/delete', (req, res, ) => {
+    const query = "delete from chatmembers where memberid = $1 and chatid = $2 returning memberid";
+    const values = [req.body.memberid, req.body.chatid];
+    console.log(values);
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows);
+        if (result.rows.length > 0) {
+            //deleted at least one 
+            res.status(200).json({message:result.rows});
+        } else {
+            res.status("404").json({message:"Chat member not found"});
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(500).json({message: error});
+    })
+})
+router.post("/add", (req, res, next) => {
+    //TODO add eror checking
+    const data = JSON.parse(req.body.members);
+    for(let i = 0; i < data.length; i++) {
+        console.log(data[i]);
+    }
+    res.status(200).json({message:"Chat member added successfully"});
+})
+/**
+ * helper funciton to add a chat member to an existing chat
+ */
+
+ const addChatMember =(chatid, memberid) => {
+    //check to see if the chat exists
+    //TODO add validation for things existing 
+    const query = `INSERT INTO ChatMembers(ChatId, MemberId)
+    VALUES ($1, $2)
+    RETURNING *`
+    const values =(chatid, memberid);
+    pool.query(query, values)
+    .then(result => {
+        console.log(result.rows);
+    })
+}
 module.exports = router;
