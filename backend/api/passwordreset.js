@@ -7,7 +7,8 @@ const nodemailer = require('nodemailer');
 const isValidPassword= require('../../utilities/validationUtils').isValidPassword
 
 const generateHash = require('../../utilities/credentialingUtils').generateHash
-const generateSalt = require('../../utilities/credentialingUtils').generateSalt
+const generateSalt = require('../../utilities/credentialingUtils').generateSalt;
+const e = require("cors");
 
 /*
  * hit this endpoint with a post request
@@ -140,10 +141,11 @@ router.post("/reset/:id", (req, res) => {
     
 })
 
-router.post("/verify/:id", (req, res, next) => {
+router.post("/verify",(req, res, next) => {
     //verify that the current password matches the one they seny
-    let query = "SELECT * FROM members WHERE memberid = $1";
-    const values = [req.params.id];
+    console.log("In app reset recieved password")
+    let query = "SELECT * FROM members WHERE email = $1";
+    const values = [req.body.email];
     pool.query(query, values)
     .then(result => {
         console.log(result.rows);
@@ -173,8 +175,8 @@ router.post("/verify/:id", (req, res, next) => {
         let salt = generateSalt(32)
         let saltedHashPassword = generateHash(password, salt);
 
-        const query = "UPDATE members SET password = $1, salt =$2 WHERE memberid = $3";
-        const values = [saltedHashPassword,salt, req.params.id];
+        const query = "UPDATE members SET password = $1, salt =$2 WHERE email = $3";
+        const values = [saltedHashPassword,salt, req.body.email];
 
         //make query
         pool.query(query, values)
