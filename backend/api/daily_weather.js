@@ -15,8 +15,6 @@ const request = require('request');
  router.get("/", (req, res) => {
     let lat = req.headers.latitude
     let lon = req.headers.longitude
-    console.log(lat);
-    console.log(lon);
     let url = "https://api.openweathermap.org/data/2.5/onecall?&units=imperial&lat="+ lat + "&lon=" + lon + "&exclude=minutely,alert,hourly,current&appid=" + API_KEY ;
     request(url, function (error, response, body) {
         if (error) {
