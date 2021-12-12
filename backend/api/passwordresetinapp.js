@@ -12,19 +12,23 @@ const e = require("cors");
 
 /**
  * @api {post} api/passwordresetinapp Allows user to reset their password while they are logged in
- * @apiName PostPasswordResetVerify
- * @apiGroup PasswordReset
+ * @apiName PostPasswordResetInApp
+ * @apiGroup PasswordResetInApp
  * 
- * @apiSuccess (Success 200) message "Password updated successfully"
+ * @apiParam {String} email User's email
+ * @apiParam {String} password User's current password
+ * @apiParam {String} newPassword User's new password to use on their account
+ * 
+ * @apiSuccess (Success 200) {String} message "Password updated successfully"
+ * 
+ * @apiError (400: Invalid Input) {String} message "'password' input doesn't meet base password..."
+ * @apiError (400: Invalid Input) {String} message "'newPassword' input doesn't meet base password..."
+ * @apiError (400: Wrong Password) {String} message "'password' does not match current password"
+ * @apiError (400: User Not Found) {String} message "User not found"
+ * @apiError (400: SQL Error Email) {String} message "SQL Error on retrieving user by email"
+ * @apiError (400: SQL Error Insertion) {String} message "SQL Error when inserting new password"
  */
 router.post("/",(req, res, next) => {
-    if (req.body.password === req.body.newPassword) {
-        res.status(400).json({message: "new password cannot match current password"})
-    } else {
-        // Current password and new password are different.
-        next()
-    }
-},(req, res, next) => {
     if (isValidPassword(req.body.password)) {
         // Current password meets base password format requirements.
         next()
