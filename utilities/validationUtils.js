@@ -58,11 +58,11 @@ let isValidUsername = (username) => {
  * 
  * @param {string} email the email to check
  * @returns true if the email is 3-255 characters long, must contain an "@" sign, and 
- *  only contain letters, numbers, hyphens, underscores, or periods. False otherwise.
+ *  only contain letters, numbers, hyphens, underscores, plus signs, or periods. False otherwise.
  */
 let isValidEmail = (email) => {
     let isValid = false;
-    let charRestriction = /^[A-Za-z0-9-_.@]+$/;
+    let charRestriction = /^[A-Za-z0-9-_.@+]+$/;
     if(isStringProvided(email) 
             && email.match(charRestriction) 
             && email.includes("@")

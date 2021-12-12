@@ -135,7 +135,8 @@ router.post("/", (req, res) => {
             + "letters, numbers, hyphens, or underscores"
         } else if (!isValidEmail(email)) {
             errorMessage = "Emails must be 3-255 characters long, must contain an \"@\"" 
-            + "sign, and only contain letters, numbers, hyphens, underscores, or periods"
+            + "sign, and only contain letters, numbers, hyphens, underscores, plus signs, "
+            + "or periods."
         } else if (!isValidPassword(password)) {
             errorMessage = "Passwords must be 7-255 characters long and contain at least " 
             + "one capital letter, one lowercase letter, one number, and one of the " 
